@@ -1,5 +1,12 @@
-
 (function (exports, $) {
+    // Display an error message and stop the script if localStorage is not available.
+    if ('undefined' === typeof(localStorage)) {
+      $("#posts").append($("<div class='notification warning.'>Sorry! This application won’t work \
+                            because it doesn’t support support localStorage… :|</div>"));
+      $('#add-entry').remove();
+      return exports;
+    }
+
     function showEntries () {
         var data = localStorage.getItem("data");
         if (!data) {

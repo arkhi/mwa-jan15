@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width" />
 
     <title>My Diary</title>
-    <link href='http://fonts.googleapis.com/css?family=Over+the+Rainbow|Lobster|Bangers|Julee' rel='stylesheet' type='text/css'
-          media='all and (min-width: 62em)'/>
+    <link href='http://fonts.googleapis.com/css?family=Over+the+Rainbow|Lobster|Bangers|Julee'
+          rel='stylesheet' type='text/css' media='all and (min-width: 62em)'/>
     <link rel='stylesheet' href='960.css' media='all and (min-width: 62em)' />
     <link rel='stylesheet' href='diary.css' media='all' />
   </head>
@@ -16,6 +16,7 @@
         <h1>My Diary</h1>
         <h2>all the me that's worth writing down!!!</h2>
       </header>
+
       <div id='content' class='container_12'>
         <div class='grid_12' id='add-text'>
           <div class='label'>Subject</div>
@@ -27,28 +28,31 @@
             <button onclick='cancelEdit()'>Cancel!!!</button>
           </div>
         </div>
+
         <div class='clear'></div>
+
         <div class='grid_3'>
-          <nav>
+          <nav class="sidebar">
             <ul>
-              <li><a class="button" href='#' onclick='addTxt()'>Add A Text Entry!</a></li>
+              <li><a id="add-entry" class="button" onclick='addTxt()'>Add A Text Entry!</a></li>
             </ul>
           </nav>
           <div class='documentation'>
             Welcome to the wonderful My Diary application!!! We at 
-            <a href='http://robineko.com/' target='_blank' class='us'>Really Sexy Apps For Me</a>
+            <a href='http://robineko.com/' class='us'>Really Sexy Apps For Me</a>
             hope you really enjoy it!!!<br/><br/>
             Simply click "<b>Add A Text Entry!</b>" above and you'll be on your way to writing the most awesome
             diary of your entire life!!!
           </div>
         </div>
-        <div class='grid_9' id='posts'>
-          XXX
-        </div>
+
+        <div id='posts' class='grid_9'></div>
+
         <div class='clear'></div>
       </div>
+
       <footer>
-        © 2011 <a href='http://robineko.com/' target='_blank' class='us'>Really Sexy Apps For Me</a>. All Rights Reserved.
+        © 2011 <a href='http://robineko.com/' class='us'>Really Sexy Apps For Me</a>. All Rights Reserved.
       </footer>
     </div>
   </body>
@@ -56,5 +60,6 @@
   <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js'></script>
   <script src='diary.js'></script>
   <script src="http://debug-software.intel.com/target/target-script-min.js#X56_a8q4upVFvB1ZebjDA2ImX3aPiPiAYkQ8addZwvw"></script>
+  <script>"JSON" in window || document.write('<script src="json2-min.js"><\/script>')</script>
 </html>
 

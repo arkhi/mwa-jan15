@@ -83,13 +83,16 @@ a {
   outline:    none;
 }
 
+.sidebar .button {
+  margin-bottom: 20px;
+}
+
 .documentation {
   background: rgba(255, 255, 255, 0.7);
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
   border-radius: 10px;
   padding:    10px;
-  margin-top: 20px;
 }
 
 .button, button {
@@ -112,6 +115,7 @@ a {
   font-size:      2.4em;
   text-shadow:    0px 0px 2px #000;
   text-align: center;
+  cursor: pointer;
 }
 
 .button:hover, button:hover {
@@ -164,7 +168,8 @@ button {
   display:    inline;
 }
 
-.post {
+.post,
+.notification {
   padding:    10px;
   margin-bottom:  10px;
   bottom: 0;
@@ -172,6 +177,12 @@ button {
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
   border-radius: 10px;
+}
+
+.notification {
+  border: solid #d00 3px;
+  font-weight: bolder;
+  color: #d00;
 }
 
 h3 {
