@@ -3,12 +3,12 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
     <meta name="viewport" content="width=device-width" />
-    <script src="http://debug-software.intel.com/target/target-script-min.js#X56_a8q4upVFvB1ZebjDA2ImX3aPiPiAYkQ8addZwvw"></script>
 
     <title>My Diary</title>
-    <link href='http://fonts.googleapis.com/css?family=Over+the+Rainbow|Lobster|Bangers|Julee' rel='stylesheet' type='text/css'/>
-    <link rel='stylesheet' href='960.css' type='text/css' media='all' charset='utf-8'/>
-    <link rel='stylesheet' href='diary.css' type='text/css' media='all' charset='utf-8'/>
+    <link href='http://fonts.googleapis.com/css?family=Over+the+Rainbow|Lobster|Bangers|Julee' rel='stylesheet' type='text/css'
+          media='all and (min-width: 62em)'/>
+    <link rel='stylesheet' href='960.css' media='all and (min-width: 62em)' />
+    <link rel='stylesheet' href='diary.css' media='all' />
   </head>
   <body>
     <div id='page'>
@@ -31,7 +31,7 @@
         <div class='grid_3'>
           <nav>
             <ul>
-              <li><a href='#' onclick='addTxt()'>Add A Text Entry!</a></li>
+              <li><a class="button" href='#' onclick='addTxt()'>Add A Text Entry!</a></li>
             </ul>
           </nav>
           <div class='documentation'>
@@ -52,7 +52,9 @@
       </footer>
     </div>
   </body>
+
   <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js'></script>
   <script src='diary.js'></script>
+  <script src="http://debug-software.intel.com/target/target-script-min.js#X56_a8q4upVFvB1ZebjDA2ImX3aPiPiAYkQ8addZwvw"></script>
 </html>
 
