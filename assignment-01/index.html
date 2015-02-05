@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width" />
 
     <title>My Diary</title>
-    <link href='http://fonts.googleapis.com/css?family=Over+the+Rainbow|Lobster|Bangers|Julee'
-          rel='stylesheet' type='text/css' media='all and (min-width: 62em)'/>
-    <link rel='stylesheet' href='960.css' media='all and (min-width: 62em)' />
-    <link rel='stylesheet' href='diary.css' media='all' />
+
+    <link id="loadLast" href='960.css' rel='stylesheet' media='all and (min-width: 62em)' />
+    <link href='diary.css' rel='stylesheet' media='all' />
   </head>
+
   <body>
     <div id='page'>
       <header>
@@ -55,11 +55,32 @@
         © 2011 <a href='http://robineko.com/' class='us'>Really Sexy Apps For Me</a>. All Rights Reserved.
       </footer>
     </div>
+
+    <script src="jquery.min.js"></script>
+    <script src="diary.js"></script>
+    <script>
+      "JSON" in window || document.write('<script src="json2-min.js"><\/script>');
+      // Since China is blocking anything related to Google, avoid blocking the loading process if
+      // the user doesn’t have a VPN. Lazyload.css is here to avoid cross-domain problems; its content
+      // is http://fonts.googleapis.com/css?family=Over+the+Rainbow%7CLobster%7CBangers%7CJulee.
+      // 
+      // TODO: Update with location based detection and an object with country:[domains]?
+      // TODO: Check http://www.w3.org/TR/html5/document-metadata.html#attr-link-crossorigin and
+      //       http://blogs.telerik.com/kendoui/posts/11-10-03/using_cors_with_all_modern_browsers.
+      if (document.createStyleSheet) {
+        document.createStyleSheet('lazyload.css').setAttribute('media', 'all and (min-width:62em)');
+      } else {
+        $('<link/>', {
+          rel:   'stylesheet',
+          media: 'all and (min-width:62em)',
+          href:  'lazyload.css'
+        }).insertBefore('#loadLast');
+      }
+    </script>
+
+    <!-- Non-vital things or tools -->
+    <!--
+    <script src="http://debug-software.intel.com/target/target-script-min.js#X56_a8q4upVFvB1ZebjDA2ImX3aPiPiAYkQ8addZwvw"></script>
+     -->
   </body>
-
-  <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js'></script>
-  <script src='diary.js'></script>
-  <script src="http://debug-software.intel.com/target/target-script-min.js#X56_a8q4upVFvB1ZebjDA2ImX3aPiPiAYkQ8addZwvw"></script>
-  <script>"JSON" in window || document.write('<script src="json2-min.js"><\/script>')</script>
 </html>
-
