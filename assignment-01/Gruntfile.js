@@ -95,7 +95,7 @@ module.exports = function(grunt) {
         files: [
           cfg.cssCwd + '/**/*.scss',
         ],
-        tasks: ['sass:lab', 'sass:prod']
+        tasks: ['sass:prod']
       },
 
       js: {
@@ -119,12 +119,13 @@ module.exports = function(grunt) {
   // ===========================================================================
   grunt.registerTask('lab', [
     'sass:lab',
-    'sass:prod',
-    'uglify:prod',
+    'uglify:concat',
+    'uglify:minify'
   ]);
 
   grunt.registerTask('prod', [
     'sass:prod',
-    'uglify:prod',
+    'uglify:concat',
+    'uglify:minify'
   ]);
 };
