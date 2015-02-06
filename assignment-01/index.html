@@ -6,8 +6,9 @@
 
     <title>My Diary</title>
 
-    <link id="loadLast" href="960.css" rel="stylesheet" media="all and (min-width: 62em)" />
-    <link href="diary.css" rel="stylesheet" media="all" />
+    <link id="loadLast" href="css/960.min.css" rel="stylesheet" media="all and (min-width: 62em)" />
+    <link href="css/all.min.css" rel="stylesheet" media="all" />
+    <!-- <link href="css/diary.css" rel="stylesheet" media="all" /> -->
   </head>
 
   <body>
@@ -23,32 +24,33 @@
             <a id="add-entry" class="button" href="#add-text" onclick="addTxt()">Add Entry!</a>
           </nav>
           <div class="documentation">
-            <p>Welcome to the wonderful <em>My Diary</em> application!!! We at 
-              <a href="http://robineko.com/" class="us">Really Sexy Apps For Me</a> hope you really
-              enjoy it!!!
+            <p>Welcome to the wonderful <em>My Diary</em> application!
             </p>
-            <p>Simply click "<b>Add Entry!</b>" above and you'll be on your way to writing the most
-              awesome diary of your entire life!!!
+            <p>Simply click “<b>Add Entry!</b>” above and you'll be on your way to writing the most
+              awesome diary of your entire life!
+            </p>
+            <p>We at <a href="http://robineko.com/" class="us">Really Sexy Apps For Me</a> hope you
+              really enjoy it!
             </p>
           </div>
         </div>
 
-        <form id="add-text" class="grid_9 omega" action="./">
-          <label class="label" for="subject">Subject</label>
-          <input id="subject" name="subject" type="text" />
-
-          <label class="label" for="body">Body</label>
-          <textarea id="body" name="body"></textarea>
-
-          <div class="actions">
-            <button onclick="okEdit()">Ok!!!</button>
-            <button onclick="cancelEdit()">Cancel!!!</button>
-          </div>
-        </form>
-
-        <div id="posts" class="grid_9"></div>
-
-        <div class="clear"></div>
+        <div class="content">
+          <form id="add-text" class="grid_9 omega">
+            <label for="subject">Subject</label>
+            <input id="subject" name="subject" type="text" />
+          
+            <label for="body">Body</label>
+            <textarea id="body" name="body"></textarea>
+          
+            <div class="actions">
+              <button onclick="okEdit()">Ok!!!</button>
+              <button onclick="cancelEdit()">Cancel!!!</button>
+            </div>
+          </form>
+          
+          <div id="posts" class="grid_9"></div>
+        </div>
       </div>
 
       <footer>
@@ -56,10 +58,9 @@
       </footer>
     </div>
 
-    <script src="jquery.min.js"></script>
-    <script src="diary.js"></script>
+    <script src="js/all.min.js"></script>
     <script>
-      "JSON" in window || document.write('<script src="json2-min.js"><\/script>');
+      "JSON" in window || document.write('<script src="js/json2-min.js"><\/script>');
       // Since China is blocking anything related to Google, avoid blocking the loading process if
       // the user doesn’t have a VPN. Lazyload.css is here to avoid cross-domain problems; its content
       // is http://fonts.googleapis.com/css?family=Over+the+Rainbow%7CLobster%7CBangers%7CJulee.
@@ -67,20 +68,24 @@
       // TODO: Update with location based detection and an object with country:[domains]?
       // TODO: Check http://www.w3.org/TR/html5/document-metadata.html#attr-link-crossorigin and
       //       http://blogs.telerik.com/kendoui/posts/11-10-03/using_cors_with_all_modern_browsers.
+      var lazyLoad = {
+        url: 'css/lazyload.min.css',
+        media: 'all and (min-width:62em)'
+      };
       if (document.createStyleSheet) {
-        document.createStyleSheet('lazyload.css').setAttribute('media', 'all and (min-width:62em)');
+        document.createStyleSheet(lazyLoad.url).setAttribute('media', lazyLoad.media);
       } else {
         $('<link/>', {
           rel:   'stylesheet',
-          media: 'all and (min-width:62em)',
-          href:  'lazyload.css'
+          href:  lazyLoad.url,
+          media: lazyLoad.media,
         }).insertBefore('#loadLast');
       }
     </script>
 
     <!-- Non-vital things or tools -->
-    <!-- -->
+    <!--
     <script src="http://debug-software.intel.com/target/target-script-min.js#X56_a8q4upVFvB1ZebjDA2ImX3aPiPiAYkQ8addZwvw"></script>
-    <!-- -->
+    -->
   </body>
 </html>
