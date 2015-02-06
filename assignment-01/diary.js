@@ -1,21 +1,21 @@
 (function (exports, $) {
     // Display an error message and stop the script if localStorage is not available.
     if ('undefined' === typeof(localStorage)) {
-      $("#posts").append($("<div class='notification warning.'>Sorry! This application won’t " +
-                           "work because your browser doesn’t support localStorage… :|</div>"));
-      $('#add-entry').remove();
-      return exports;
+        $("#posts").append($("<div class='notification warning.'>Sorry! This application won’t " +
+                             "work because your browser doesn’t support localStorage… :|</div>"));
+        $('#add-entry').remove();
+        return exports;
     }
 
     function showEntries () {
         var data = localStorage.getItem("data");
         if (!data) {
-          data = [
-            "<h3>Welcome to My Diary!!!!</h3>" +
-            "<div class='date'>Tue Mar 17 01:05 1977</div>" +
-            "<p>There are currently no entries in this diary, but go ahead and add one — it will " +
-            "be AWESOME!!!</p>"
-          ];
+            data = [
+                "<h3>Welcome to My Diary!!!!</h3>" +
+                "<div class='date'></div>" +
+                "<p>There are currently no entries in this diary, but go ahead and add one — it" +
+                " will be AWESOME!!!</p>"
+            ];
         } else {
           data = JSON.parse(data);
         }

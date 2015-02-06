@@ -14,37 +14,37 @@
     <div id="page">
       <header>
         <h1>My Diary</h1>
-        <h2>all the me that's worth writing down!!!</h2>
+        <h2>All the me that's worth writing down!!!</h2>
       </header>
 
       <div id="content" class="container_12">
-        <div class="grid_12" id="add-text">
-          <div class="label">Subject</div>
-          <div class="field"><input type="text" name="subject"/></div>
-          <div class="label">Body</div>
-          <div class="field"><textarea></textarea></div>
+        <div class="grid_3 alpha">
+          <nav class="sidebar">
+            <a id="add-entry" class="button" href="#add-text" onclick="addTxt()">Add Entry!</a>
+          </nav>
+          <div class="documentation">
+            <p>Welcome to the wonderful <em>My Diary</em> application!!! We at 
+              <a href="http://robineko.com/" class="us">Really Sexy Apps For Me</a> hope you really
+              enjoy it!!!
+            </p>
+            <p>Simply click "<b>Add Entry!</b>" above and you'll be on your way to writing the most
+              awesome diary of your entire life!!!
+            </p>
+          </div>
+        </div>
+
+        <form id="add-text" class="grid_9 omega" action="./">
+          <label class="label" for="subject">Subject</label>
+          <input id="subject" name="subject" type="text" />
+
+          <label class="label" for="body">Body</label>
+          <textarea id="body" name="body"></textarea>
+
           <div class="actions">
             <button onclick="okEdit()">Ok!!!</button>
             <button onclick="cancelEdit()">Cancel!!!</button>
           </div>
-        </div>
-
-        <div class="clear"></div>
-
-        <div class="grid_3">
-          <nav class="sidebar">
-            <ul>
-              <li><a id="add-entry" class="button" onclick="addTxt()">Add A Text Entry!</a></li>
-            </ul>
-          </nav>
-          <div class="documentation">
-            Welcome to the wonderful My Diary application!!! We at 
-            <a href="http://robineko.com/" class="us">Really Sexy Apps For Me</a>
-            hope you really enjoy it!!!<br/><br/>
-            Simply click "<b>Add A Text Entry!</b>" above and you'll be on your way to writing the most awesome
-            diary of your entire life!!!
-          </div>
-        </div>
+        </form>
 
         <div id="posts" class="grid_9"></div>
 
@@ -79,8 +79,8 @@
     </script>
 
     <!-- Non-vital things or tools -->
-    <!--
+    <!-- -->
     <script src="http://debug-software.intel.com/target/target-script-min.js#X56_a8q4upVFvB1ZebjDA2ImX3aPiPiAYkQ8addZwvw"></script>
-     -->
+    <!-- -->
   </body>
 </html>
