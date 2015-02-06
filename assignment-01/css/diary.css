@@ -5,8 +5,8 @@ body {
 }
 
 #page {
-  width: 960px;
-  margin: 20px auto 100px auto;
+  margin-top: 2em;
+  margin-bottom: 10em;
 }
 
 header {
@@ -79,7 +79,7 @@ footer {
 
 a {
   outline: none;
-  color: #ed9017;
+  color: #bd5007;
 }
 
 .sidebar .button {
@@ -99,7 +99,7 @@ a {
 button,
 .button {
   padding: .5em 1em;
-  border: 2px solid #000;
+  border: 1px solid #000;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
