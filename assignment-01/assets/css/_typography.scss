@@ -1,0 +1,35 @@
+// # typography
+//
+// No styleguide reference.
+// =================================================================================================
+html {
+  font-size: $font-size-default;
+}
+
+body {
+  @include rem-fb($font-l);
+  font-family: $font-normal;
+}
+
+h3 {
+  font-family: $font-title;
+  @include rem-fb($font-xl);
+  font-weight: bold;
+}
+
+a {
+  color: $color-link;
+
+  &:visited {
+    color: $color-link-visited;
+  }
+
+  &:focus,
+  &:hover {
+    color: $color-link-hover;
+  }
+
+  &:active {
+    color: $color-link-active;
+  }
+}

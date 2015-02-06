@@ -1,0 +1,70 @@
+// # header
+//
+// <p>Handles part of the header visible on all pages. Look up!</p>
+//
+// No styleguide reference.
+// =================================================================================================
+header {
+  @include rem-fb(1 3, padding);
+  @include border-radius-s;
+  @include rem-fb(2, margin-bottom);
+  color: $color-light-main;
+  background-color: $color-highlight-dark;
+  background: -moz-linear-gradient(top, $color-highlight-light 0,$color-highlight-dark 100%);
+  background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,$color-highlight-light), color-stop(100%,$color-highlight-dark) );
+  background: -webkit-linear-gradient(top,$color-highlight-light 0,$color-highlight-dark 100%);
+  background: -o-linear-gradient(top,$color-highlight-light 0,$color-highlight-dark 100%);
+  background: -ms-linear-gradient(top,$color-highlight-light 0,$color-highlight-dark 100%);
+  background: linear-gradient(top,$color-highlight-light 0,$color-highlight-dark 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$color-highlight-light', endColorstr='$color-highlight-dark',GradientType=0 );
+
+
+  @media screen and (max-width: 62em) {
+    border: 0;
+    margin: 0;
+    text-align: center;
+    color: #000;
+    background: none;
+  }
+}
+
+h1 {
+  font-family: $font-title;
+  @include rem-fb(6);
+  text-shadow: 0 0 4px #333;
+
+  @media screen and (max-width: 62em) {
+    @include rem-fb($font-xxl);
+  }
+}
+
+h2 {
+  @include rem-fb(2, margin-top);
+  @include rem-fb(7, margin-left);
+  font-family: Zapfino, cursive;
+  @include rem-fb(2, font-size);
+  text-shadow: 1px 1px 1px #fff;
+  color: #900;
+  -webkit-transform: rotate(-5deg);
+  -moz-transform: rotate(-5deg);
+  -ms-transform: rotate(-5deg);
+  -o-transform: rotate(-5deg);
+  transform: rotate(-5deg);
+  -webkit-transform-origin: 0 0;
+  -moz-transform-origin: 0 0;
+  transform-origin: 0 0;
+  -o-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+
+  @media screen and (max-width: 62em) {
+    margin: .5em 0 0;
+    font-family: cursive;
+    @include rem-fb($font-l);
+    color: #000;
+    -webkit-transform: rotate(0);
+    -moz-transform: rotate(0);
+    -ms-transform: rotate(0);
+    -o-transform: rotate(0);
+    transform: rotate(0);
+  }
+}

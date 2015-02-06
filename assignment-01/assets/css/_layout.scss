@@ -1,0 +1,30 @@
+// # global layout
+//
+// No styleguide reference.
+// =================================================================================================
+html {
+  color: $color-dark-main;
+  background: $color-light-main;
+}
+
+// # main container
+// =================================================================================================
+#page {
+  max-width: 960px;
+  margin: 2em auto 10em;
+
+  @media screen and (max-width: 62em) {
+    width: auto;
+    margin: .5em;
+  }
+}
+
+#content {
+  font-family: $font-normal;
+}
+
+// # tools for layout
+// =================================================================================================
+.clearfix {
+  clear: both;
+}

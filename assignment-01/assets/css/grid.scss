@@ -1,0 +1,167 @@
+// # generic layout utilities
+//
+// <p>Use them for consistent styling of content.</p>
+// <p>These could probably go in another file for clearer separation.</p>
+//
+// No styleguide reference.
+// =================================================================================================
+@charset "UTF-8";
+
+@import "base";
+
+// # columns
+// 
+// <p>Displays widths relative to their container. Some benefits include:</p>
+// <ul>
+//   <li>baselines are aligned to whatever is defined (top, bottom, middle…).</li>
+//   <li>No need to clear floats or deal with their side-effects and bugs.</li>
+// </ul>
+// <p>Make sure to <strong>remove all white-space between columns!</strong>. Child elements
+// should not have white-space in between them in the markup.</p>
+//
+// No styleguide reference.
+// =================================================================================================
+
+// # columns defaults
+// 
+// Markup:
+// <div class="row">
+//   <div class="col-10 at-center"><div class="content-box">10%</div></div><!-- This is good to keep code readable.
+//--><div class="col-90 at-center"><div class="content-box">90%</div></div>
+//   <div class="col-20 at-center"><div class="content-box">20%</div></div><!-- This is OK too. --><div class="col-80 at-center"><div class="content-box">80%</div></div>
+//   <div class="col-30 at-center"><div class="content-box">30%</div></div><div class="col-70 at-center"><div class="content-box">70%</div></div>
+//   <div class="col-40 at-center"><div class="content-box">40%</div></div><div class="col-60 at-center"><div class="content-box">60%</div></div>
+//   <div class="col-50 at-center"><div class="content-box">50%</div></div><div class="col-50 at-center"><div class="content-box">50%</div></div>
+// </div>
+//
+// No styleguide reference.
+// -------------------------------------------------------------------------------------------------
+
+// # columns with gutters
+// 
+// <p class="notification notification-warning">The content of a "guttered" container needs to be within elements.
+//    Text nodes won't be affected.</p>
+// 
+// Markup:
+// <div class="row">
+//   <div class="col-30 at-center gutter-r">
+//     <div class="content-box"><code>.gutter-r</code>: 29% + 1% gutter</div>
+//   </div><!--
+//--><div class="col-70 at-center">
+//     <div class="content-box">70%</div>
+//   </div>
+//   <div class="col-40 at-center">
+//     <div class="content-box">40%</div>
+//   </div><!--
+//--><div class="col-60 at-center gutter-l">
+//     <div class="content-box"><code>.gutter-l</code>: 59% + 1% gutter</div>
+//   </div>
+// </div>
+//
+// No styleguide reference.
+// -------------------------------------------------------------------------------------------------
+$colW: 100 / $cols * 1%;
+$gutterW: $colW * $gutterRatio;
+
+.col-auto {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+// Automatize the creation of columns. Take into consideration we might have gutters.
+@for $i from 1 through $cols {
+  .col-#{$i},
+  .col-gl-#{$i},
+  .col-gc-#{$i},
+  .col-gr-#{$i} {
+    @extend .col-auto;
+  }
+
+  .col-gl-#{$i},
+  .col-gr-#{$i} {
+    width: $colW * $i - $gutterW;
+  }
+
+  .col-gl-#{$i} {
+    margin-left: $gutterW;
+  }
+
+  .col-gr-#{$i} {
+    margin-right: $gutterW;
+  }
+
+  .col-gc-#{$i} {
+    width: $colW * $i - $gutterW * 2;
+    margin-right: $gutterW;
+    margin-left: $gutterW;
+  }
+}
+
+.col-last {
+  margin-right: 0;
+}
+// # columns vertical alignment
+// 
+// <p>We can align columns in different ways. By default, columns will be aligned on their baseline
+//    and to the left.</p>
+// 
+// .at-top      - Align columns to the top of their content area.
+// .at-middle   - Align columns to the middle of their content area.
+// .at-baseline - Align columns to the baseline of the last line of text in the content area.
+// .at-bottom   - Align columns to the bottom of their content area.
+// .at-left     - Align the content to the left of the column.
+// .at-center   - Center the content within the column.
+// .at-right    - Align the content to the right of the column.
+// 
+// 
+// Markup:
+// <div class="row">
+//   <div class="col-30">
+//     <div class="content-box">Some content goes here, just to check the baselines alignment.</div>
+//   </div><!-- This is good to keep code readable.
+//--><div class="col-70 gutter-l $modifierClass">
+//     <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Impedit, consequatur, id, corrupti
+//     maiores reprehenderit temporibus voluptatum mollitia quam esse quae officia tenetur in ipsum
+//     nemo laudantium quasi veniam. Illo, nemo.</div>
+//   </div>
+// </div>
+//
+// No styleguide reference.
+// -------------------------------------------------------------------------------------------------
+$alignements: (
+  vertical: (top, middle, baseline, bottom),
+  horizontal: (left, center, right)
+);
+
+@each $direction, $positions in $alignements {
+  @if $direction == 'vertical' {
+    @each $alignement in $positions {
+      .at-#{$alignement} {
+        vertical-align: $alignement;
+      }
+    }
+  } @else {
+    @each $alignement in $positions {
+      .at-#{$alignement} {
+        text-align: $alignement;
+      }
+    }
+  }
+}
+
+// # columns with a "property: value"-like display
+// 
+// .col-prop - Use it for "property:value"-like row.
+// 
+// Markup:
+// <div class="row">
+//   <div class="col-20 col-property">Property:</div><div class="col-80"><strong>By default, columns are aligned to their bottom</strong>. Value can then be anything. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos suscipit corrupti mollitia sit. Totam, nulla, ratione! Totam, excepturi, quam, expedita facere reiciendis doloremque qui sed dolorum laudantium veniam fugiat atque.</div>
+//   <div class="col-20 col-property">Property:</div><div class="col-80 at-middle"><strong>These columns are aligned to their middle</strong>. Value can then be anything. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Odio, voluptatem quas et sint consectetur quae possimus enim non ipsam voluptates aut cum reiciendis animi at recusandae eos sunt provident quia!</div>
+//   <div class="col-20 col-property">Property:</div><div class="col-80 at-top"><strong>These columns are aligned to their top</strong>. Value can then be anything. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aperiam, odit, itaque, veniam amet optio ad eum soluta molestiae vero hic sunt debitis tempora nostrum natus temporibus iure facilis incidunt dolorem.</div>
+// </div>
+//
+// No styleguide reference.
+// -------------------------------------------------------------------------------------------------
+.col-prop {
+  font-weight: bold;
+}

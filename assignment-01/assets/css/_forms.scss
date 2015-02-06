@@ -1,0 +1,37 @@
+// # forms
+//
+// <p>All about forms</p>
+//
+// No styleguide reference.
+// =================================================================================================
+label {
+  display: block;
+  @include rem-fb(.5 0, margin);
+  font-family: $font-title;
+  @include rem-fb($font-xl);
+  font-weight: bold;
+}
+
+* + label {
+  @include rem-fb(1, margin-top);
+}
+
+input,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px dotted #666;
+  font-family: inherit;
+}
+
+input {
+  @include rem-fb($font-xl);
+  font-weight: bold;
+}
+
+textarea {
+  min-height: 8em;
+  line-height: 1.5;
+  @include rem-fb($font-l);
+  resize: vertical;
+}

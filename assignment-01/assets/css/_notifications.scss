@@ -1,0 +1,116 @@
+// # information
+//
+// <p>Informational boxes should be easily placed above, below or aside other elements without breaking.</p>
+//
+// <p>They should also convey the proper message to the user: no need to display an error if I just
+//    forgot to do something; display a warning or a friendly notice.</p>
+//
+// No styleguide reference.
+// =================================================================================================
+.info {
+  display: block;
+  border: 1px solid;
+  @include rem-fb(1, padding);
+  border-color: $color-green-dark;
+  @include border-radius-s;
+  @include rem-fb(1.1);
+  font-weight: bold;
+  background-color: $color-green-light;
+}
+
+.info-inline {
+  display: inline-block;
+}
+
+// # position
+//
+// <p>Notifications should be easily placed above, below or aside other elements without breaking.</p>
+//
+// .info-above - Notification that sits above the form element it refers to.
+// .info-below - Notification that sits below the form element it refers to.
+//
+// Markup:
+// You can have content before a default notification.
+// <div class="info $modifierClass">
+//   This is how <code>.info.$modifierClass</code> looks like.
+//   <br />It can have multiple lines too.
+// </div>
+// And some content after too.
+// <br />You can have content before a <code>.info-inline</code>.
+// <div class="info info-inline $modifierClass">
+//   This is how <code>.info.$modifierClass</code> looks like.
+//   <br />It can have multiple lines too.
+// </div>
+// And content after too!
+//
+// No styleguide reference.
+// =================================================================================================
+.info-above {
+  @include rem-fb(1.5, margin-top);
+  @include rem-fb(.5, margin-bottom);
+}
+
+.info-below {
+  @include rem-fb(.5, margin-top);
+  @include rem-fb(1.5, margin-bottom);
+}
+
+.info-above-first {
+  @include rem-fb(.5, margin-bottom);
+}
+
+.info-below-last {
+  @include rem-fb(1.5, margin-bottom);
+}
+
+// # type
+//
+// <p>Notifications should convey a message with colors and emphasis.</p>
+//
+// .info-attention - This is a variation of the warning notification.
+// .info-error     - Warns me something not right happened. There is nothing I can do about it, but I can report the error to the dev team.
+// .info-notice    - Informs me something happened.
+// .info-warning   - Warns me something not right happened. I should take action, but nothing is broken.
+// .flash          - Special information box that can appear on any page after an action was tried.
+//
+// Markup:
+// <div class="info $modifierClass">
+//   This is how <code>.info.$modifierClass</code> looks like.
+// </div>
+//
+// No styleguide reference.
+// =================================================================================================
+.info-attention {
+  border-color: $color-yellow-dark;
+  background-color: $color-yellow-light;
+}
+
+.info-error {
+  border-color: $color-red-dark;
+  background-color: $color-red-light;
+}
+
+.info-notice {
+  border-color: $color-green-dark;
+  background-color: $color-green-light;
+}
+
+.info-warning {
+  @extend .info-attention;
+}
+
+// # visual tips
+//
+// <p>Visual tips to indicate the state of an INLINE element.</p>
+// <p>They usually change opacity or color, and are handled with JavScript.</p>
+// 
+// .attention - Tells me I should do somethin.
+//
+// Markup:
+// <span class="$modifierClass">Some text to entertain you.</span>
+//
+// No styleguide reference.
+// =================================================================================================
+.attention {
+  color: $color-red-dark;
+}

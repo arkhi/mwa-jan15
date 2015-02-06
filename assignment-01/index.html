@@ -6,23 +6,23 @@
 
     <title>My Diary</title>
 
-    <link id="loadLast" href="css/960.min.css" rel="stylesheet" media="all and (min-width: 62em)" />
+    <link id="loadLast" href="css/grid.min.css" rel="stylesheet" media="all and (min-width: 62em)" />
     <link href="css/all.min.css" rel="stylesheet" media="all" />
-    <!-- <link href="css/diary.css" rel="stylesheet" media="all" /> -->
   </head>
 
   <body>
-    <div id="page" class="container_12">
+    <div id="page">
       <header>
         <h1>My Diary</h1>
         <h2>All the me that's worth writing down!!!</h2>
       </header>
 
       <div id="content">
-        <div class="grid_3">
-          <nav class="sidebar">
+        <div class="col-gc-3 at-top">
+          <nav class="menu">
             <a id="add-entry" class="button" href="#add-text" onclick="addTxt()">Add Entry!</a>
           </nav>
+
           <div class="documentation">
             <p>Welcome to the wonderful <em>My Diary</em> application!
             </p>
@@ -33,10 +33,10 @@
               really enjoy it!
             </p>
           </div>
-        </div>
+        </div><!-- 
 
-        <div class="content">
-          <form id="add-text" class="grid_9">
+     --><div class="col-gc-9 at-top">
+          <form id="add-text" class="is-hidden" method="post">
             <label for="subject">Subject</label>
             <input id="subject" name="subject" type="text" />
           
@@ -49,7 +49,7 @@
             </div>
           </form>
           
-          <div id="posts" class="grid_9"></div>
+          <div id="posts"></div>
         </div>
       </div>
 
@@ -60,7 +60,7 @@
 
     <script src="js/all.min.js"></script>
     <script>
-      "JSON" in window || document.write('<script src="js/json2-min.js"><\/script>');
+      "JSON" in window || document.write('<script src="js/json2.min.js"><\/script>');
       // Since China is blocking anything related to Google, avoid blocking the loading process if
       // the user doesn’t have a VPN. Lazyload.css is here to avoid cross-domain problems; its content
       // is http://fonts.googleapis.com/css?family=Over+the+Rainbow%7CLobster%7CBangers%7CJulee.

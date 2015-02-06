@@ -1,0 +1,38 @@
+// Shortcuts to reuse variables defined by external tools
+// =================================================================================================
+$cols: 12;
+$gutterRatio: 1/10; // ratio gutter/column-width
+
+// padding, border & margin
+// =================================================================================================
+$default-spacing: 1em;
+
+// colors
+// =================================================================================================
+// main colors
+// -------------------------------------------------------------------------------------------------
+$color-dark-main: #666;
+$color-light-main: #fff;
+$color-highlight-light: #f6e6b4;
+$color-highlight-dark: #ed9017;
+
+// links
+// -------------------------------------------------------------------------------------------------
+$color-link: #bd5007;
+$color-link-hover: lighten($color-link, 1%);
+$color-link-active: lighten($color-link-hover, 1%);
+$color-link-visited: darken($color-link, 10%);
+
+// fonts
+// =================================================================================================
+$font-size-default: 62.5%; // Basic font = 10px (default should be 16px) for relative units (rem).
+$font-s:  1.1;
+$font-m:  1.3;
+$font-l:  1.6;
+$font-xl: 2.4;
+$font-xxl: 3.6;
+
+$font-normal: arial, sans-serif;
+$font-title:  "Lobster", sans-serif;
+$font-code:   consolas, 'DejaVu Sans Mono', courier, monospace;
+$font-quote:  Georgia, serif;

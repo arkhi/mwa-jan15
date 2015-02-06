@@ -1,0 +1,103 @@
+// # buttons
+//
+// <p>Pseudo-classes are not listed, but can be seen by interacting with examples.</p>
+//
+// No styleguide reference.
+// =================================================================================================
+button,
+.button {
+  padding: .5em 1em;
+  border: 1px solid #000;
+  @include border-radius-s;
+  box-shadow: inset 0 0 0 transparent;
+  @include rem-fb($font-xl);
+  font-family: $font-title;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0 0 2px #000;
+  text-transform: lowercase;
+  vertical-align: top;
+  color: $color-light-main;
+  background: $color-highlight-light;
+  background: -moz-linear-gradient(top,$color-highlight-light 0,$color-highlight-dark 100%);
+  background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,$color-highlight-light), color-stop(100%,$color-highlight-dark) );
+  background: -webkit-linear-gradient(top,$color-highlight-light 0,$color-highlight-dark 100%);
+  background: -o-linear-gradient(top,$color-highlight-light 0,$color-highlight-dark 100%);
+  background: -ms-linear-gradient(top,$color-highlight-light 0,$color-highlight-dark 100%);
+  background: linear-gradient(top,$color-highlight-light 0,$color-highlight-dark 100%);
+  cursor: pointer;
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#{$color-highlight-light}', endColorstr='#{$color-highlight-dark}',GradientType=0 );
+
+  transition-property: padding, box-shadow;
+  transition-duration: .1s;
+
+  @media screen and (max-width: 62em) {
+    text-transform: none;
+    background: #ed9017;
+  }
+
+  &:visited {
+    color: $color-light-main;
+  }
+}
+
+button:focus,
+.button:focus,
+button:hover,
+.button:hover {
+  padding: .6em .9em .4em 1.1em;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,.5);
+}
+
+button:active,
+.button:active {
+  background: $color-highlight-light;
+  background: -moz-linear-gradient(top,$color-highlight-dark 0,$color-highlight-light 100%);
+  background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,$color-highlight-dark), color-stop(100%,$color-highlight-light) );
+  background: -webkit-linear-gradient(top,$color-highlight-dark 0,$color-highlight-light 100%);
+  background: -o-linear-gradient(top,$color-highlight-dark 0,$color-highlight-light 100%);
+  background: -ms-linear-gradient(top,$color-highlight-dark 0,$color-highlight-light 100%);
+  background: linear-gradient(top,$color-highlight-dark 0,$color-highlight-light 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#{$color-highlight-dark}', endColorstr='#{$color-highlight-light}',GradientType=0 );
+
+  @media screen and (max-width: 62em) {
+    background: #930;
+  }
+}
+
+button::-moz-focus-inner,
+.button::-moz-focus-inner {
+  border: none; // Remove dotted lines for buttons
+}
+
+// OPERA only:
+// If there is no border set, Opera shows a transparent background-color if border-radius is set.
+// -------------------------------------------------------------------------------------------------
+@media all and (-webkit-min-device-pixel-ratio:10000),
+not all and (-webkit-min-device-pixel-ratio:0) {
+  input.button {
+    border: 1px solid RGBa(0,0,0,0);
+  }
+}
+
+// # group of buttons
+//
+// <p>This container is populated by two buttons or more.</p>
+//
+// No styleguide reference.
+// =================================================================================================
+.actions {
+  @include rem-fb(1 0, margin);
+  text-align: right;
+}
+
+// # specific buttons
+//
+// <p>These are single occurences of buttons.</p>
+//
+// No styleguide reference.
+// =================================================================================================
+.menu .button {
+  display: block;
+}

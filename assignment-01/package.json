@@ -1,0 +1,31 @@
+{
+  "name": "my-diary",
+  "version": "0.0.1",
+  "description": "I want an app for my blog!",
+  "main": "index.html",
+  "dependencies": {
+    "grunt": "latest",
+    "grunt-assets-versioning": "latest",
+    "grunt-contrib-clean":     "latest",
+    "grunt-contrib-cssmin":    "latest",
+    "grunt-contrib-jshint":    "latest",
+    "grunt-contrib-uglify":    "latest",
+    "grunt-contrib-watch":     "latest",
+    "grunt-sass":              "latest",
+    "grunt-text-replace":      "latest"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ".git"
+  },
+  "keywords": [
+    "diary",
+    "blog",
+    "training"
+  ],
+  "author": "Fabien Basmaison",
+  "license": "LGPLv2"
+}

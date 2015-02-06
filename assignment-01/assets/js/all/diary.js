@@ -2,8 +2,9 @@
     // Display an error message and stop the script if localStorage is not available.
     if ('undefined' === typeof(localStorage)) {
         $("#posts").append($("<div class='notification warning.'>Sorry! This application won’t " +
-                             "work because your browser doesn’t support localStorage… :|</div>"));
+                             "work because your browser doesn’t support localStorage. :|</div>"));
         $('#add-entry').remove();
+        console.log('hello');
         return exports;
     }
 
@@ -40,7 +41,7 @@
     }
 
     exports.addTxt = function () {
-        $("#add-text").show().find("input").focus();
+        $("#add-text").removeClass('is-hidden').find("input").focus();
     };
     exports.okEdit = function () {
         var subject = $("#add-text input").val();
@@ -60,7 +61,7 @@
     exports.cancelEdit = function () {
         $("#add-text input").val("");
         $("#add-text textarea").val("");
-        $("#add-text").hide();
+        $("#add-text").addClass('is-hidden')();
     };
     
     $(showEntries);

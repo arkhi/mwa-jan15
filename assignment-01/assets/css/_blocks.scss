@@ -1,0 +1,17 @@
+// # titles
+//
+// No styleguide reference.
+// =================================================================================================
+.h2-title {
+  @include rem-fb($font-xl);
+}
+
+.h3-title {
+  @include rem-fb($font-l);
+
+  .content & {
+    @include rem-fb(2, margin-top);
+    @include rem-fb(.5, margin-bottom);
+    color: $color-pink-main;
+  }
+}

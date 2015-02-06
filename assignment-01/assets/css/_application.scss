@@ -1,0 +1,48 @@
+.us {
+  font-weight: 900;
+}
+
+.documentation {
+  @include rem-fb(1 0, padding);
+  @include border-radius-l;
+  @include rem-fb($font-l);
+  line-height: 1.5;
+  background: rgba(255,255,255,0.7);
+}
+
+#posts {
+  @media screen and (max-width: 62em) {
+    margin-top: 2em;
+  }
+
+  p {
+    line-height: 1.5;
+
+    @media screen and (max-width: 62em) {
+      line-height: 1.2;
+    }
+  }
+}
+
+.post,
+.notification {
+  bottom: 0;
+  @include rem-fb(1, padding);
+  @include border-radius-s;
+  @include rem-fb(1, margin-bottom);
+  background: rgba(255,255,255,0.7);
+}
+
+.notification {
+  border: solid #d00 2px;
+  font-weight: bolder;
+  color: #d00;
+}
+
+.date {
+  padding: .2em 1em;
+  margin: .5em 0 1em;
+  font-size: 11px;
+  color: #eee;
+  background-color: #666;
+}

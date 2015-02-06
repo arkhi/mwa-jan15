@@ -1,0 +1,45 @@
+// # statuses
+//
+// <p>Handles the status for various elements.</p>
+// <p class="todo"> Try to move any status related class in here. Good candidates would be statuses
+// for funktionstest, or payment's <code>isLoading</code> selectors.</p>
+//
+// No styleguide reference.
+// =================================================================================================
+
+// # behaviour
+//
+// <p>How is the element displayed?</p>
+// <p>These rules should happen last to make sure they are applied (if an element has
+//    <code>.is-loading.is-hidden</code>, for example).</p>
+// 
+// .is-hidden        - This element is hidden, so you can't see it… if you're normal or if there is no bug.
+// .is-invisible     - The element and its dimensions remain in the flow of the document, but is not shown.
+// .is-not-available - The element cannot be used, although it could be in a different context.
+// 
+// Markup:
+// <span class="$modifierClass">Some text to entertain you.</span>
+//
+// No styleguide reference.
+// =================================================================================================
+.is-hidden {
+  display: none;
+}
+
+.is-invisible {
+  visibility: hidden;
+}
+
+.is-not-available {
+  color: #999;
+}
+
+// # positions
+// 
+// <p>Handles the positioning of an element.</p>
+//
+// No styleguide reference.
+// -------------------------------------------------------------------------------------------------
+.is-positioned {
+  position: relative;
+}

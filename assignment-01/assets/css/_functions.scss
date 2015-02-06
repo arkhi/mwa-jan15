@@ -1,0 +1,18 @@
+// # functions
+//
+// <p>Reusable functions for sass</p>
+//
+// No styleguide reference.
+// =================================================================================================
+
+// # units handlers
+//
+// No styleguide reference.
+// =================================================================================================
+// strip-unit
+// 
+// removes any unit in a variable: http://css-tricks.com/snippets/css/less-mixin-for-rem-font-sizing/
+// -------------------------------------------------------------------------------------------------
+@function strip-unit($num) {
+  @return $num / ($num * 0 + 1);
+}

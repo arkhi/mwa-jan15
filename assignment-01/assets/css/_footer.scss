@@ -1,0 +1,23 @@
+// # footer
+//
+// <p>Handles the styles for the footer that is visible on almost any page. Look down!</p>
+// <p class="todo">Refactor the whole stuff. It could be much much more simple.</p>
+//
+// No styleguide reference.
+// =================================================================================================
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 960px;
+  @include rem-fb(1, padding);
+  @include border-radius-m;
+  @include rem-fb(1 1 0, margin);
+  @include rem-fb($font-s);
+  background: rgba(255,255,255,.7);
+
+  @media screen and (max-width: 62em) {
+    position: relative;
+    width: auto;
+    margin-top: 2em;
+  }
+}
