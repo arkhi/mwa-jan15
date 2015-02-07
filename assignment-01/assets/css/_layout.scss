@@ -10,10 +10,16 @@ html {
 // # main container
 // =================================================================================================
 #page {
-  max-width: 960px;
-  margin: 2em auto 10em;
+  width: 96%;
+  max-width: $break-l-min;
+  margin: 2% 2% 10em;
 
-  @media screen and (max-width: 62em) {
+  @media screen and (min-width: $break-l-min) {
+    width: $break-l-min - 2;
+    margin: 2em auto 10em;
+  }
+
+  @media screen and (max-width: $break-s-max) {
     width: auto;
     margin: .5em;
   }

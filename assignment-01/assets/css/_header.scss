@@ -19,7 +19,7 @@ header {
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='$color-highlight-light', endColorstr='$color-highlight-dark',GradientType=0 );
 
 
-  @media screen and (max-width: 62em) {
+  @media screen and (max-width: $break-s-max) {
     border: 0;
     margin: 0;
     text-align: center;
@@ -33,7 +33,7 @@ h1 {
   @include rem-fb(6);
   text-shadow: 0 0 4px #333;
 
-  @media screen and (max-width: 62em) {
+  @media screen and (max-width: $break-s-max) {
     @include rem-fb($font-xxl);
   }
 }
@@ -56,7 +56,7 @@ h2 {
   -o-transform-origin: 0 0;
   -ms-transform-origin: 0 0;
 
-  @media screen and (max-width: 62em) {
+  @media screen and (max-width: $break-s-max) {
     margin: .5em 0 0;
     font-family: cursive;
     @include rem-fb($font-l);
