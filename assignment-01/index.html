@@ -18,12 +18,12 @@
       </header>
 
       <div id="content">
-        <div class="col-gc-3 at-top">
+        <div id="sidebar" class="col-gc-3 at-top is-hidden">
           <nav class="menu">
             <a id="add-entry" class="button" href="#add-text" onclick="addTxt()">Add Entry!</a>
           </nav>
 
-          <div class="documentation">
+          <div id="documentation" class="documentation">
             <p>Welcome to the wonderful <em>My Diary</em> application!
             </p>
             <p>Simply click “<b>Add Entry!</b>” above and you'll be on your way to writing the most
@@ -49,7 +49,13 @@
             </div>
           </form>
           
-          <div id="posts"></div>
+          <div id="posts">
+            <div id="error-no-js" class="notification error">
+              <p>Sorry! This application requires JavaScript and your browser doesn’t seem to support
+                it!
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -59,29 +65,7 @@
     </div>
 
     <script src="js/all.min.js"></script>
-    <script>
-      "JSON" in window || document.write('<script src="js/json2.min.js"><\/script>');
-      // Since China is blocking anything related to Google, avoid blocking the loading process if
-      // the user doesn’t have a VPN. Lazyload.css is here to avoid cross-domain problems; its content
-      // is http://fonts.googleapis.com/css?family=Over+the+Rainbow%7CLobster%7CBangers%7CJulee.
-      // 
-      // TODO: Update with location based detection and an object with country:[domains]?
-      // TODO: Check http://www.w3.org/TR/html5/document-metadata.html#attr-link-crossorigin and
-      //       http://blogs.telerik.com/kendoui/posts/11-10-03/using_cors_with_all_modern_browsers.
-      var lazyLoad = {
-        url: 'css/lazyload.min.css',
-        media: 'all and (min-width:62em)'
-      };
-      if (document.createStyleSheet) {
-        document.createStyleSheet(lazyLoad.url).setAttribute('media', lazyLoad.media);
-      } else {
-        $('<link/>', {
-          rel:   'stylesheet',
-          href:  lazyLoad.url,
-          media: lazyLoad.media,
-        }).insertBefore('#loadLast');
-      }
-    </script>
+    <script>"JSON" in window || document.write('<script src="js/json2.min.js"><\/script>');</script>
 
     <!-- Non-vital things or tools -->
     <!--
