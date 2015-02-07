@@ -4,15 +4,11 @@
   "description": "I want an app for my blog!",
   "main": "index.html",
   "dependencies": {
-    "grunt": "latest",
-    "grunt-assets-versioning": "latest",
-    "grunt-contrib-clean":     "latest",
-    "grunt-contrib-cssmin":    "latest",
-    "grunt-contrib-jshint":    "latest",
-    "grunt-contrib-uglify":    "latest",
-    "grunt-contrib-watch":     "latest",
-    "grunt-sass":              "latest",
-    "grunt-text-replace":      "latest"
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-uglify": "^0.7.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-sass": "^0.17.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
