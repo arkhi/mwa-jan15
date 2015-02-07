@@ -38,21 +38,23 @@
      --><div class="col-gc-9 at-top">
           <form id="add-text" class="is-hidden" method="post">
             <label for="subject">Subject</label>
-            <input id="subject" name="subject" type="text" />
-          
+            <input id="subject" name="subject" type="text" required
+                   title="You really should add a subject to your entry." />
+
             <label for="body">Body</label>
-            <textarea id="body" name="body"></textarea>
-          
+            <textarea id="body" name="body" required
+                      title="You really should add some text to your entry. ;)"></textarea>
+
             <div class="actions">
               <button onclick="okEdit()">Ok!!!</button>
               <button onclick="cancelEdit()">Cancel!!!</button>
             </div>
           </form>
-          
+
           <div id="posts">
             <div id="error-no-js" class="notification error">
-              <p>Sorry! This application requires JavaScript and your browser doesn’t seem to support
-                it!
+              <p>Sorry! This application <strong>requires JavaScript</strong> and your browser
+                doesn’t seem to support it!
               </p>
             </div>
           </div>
