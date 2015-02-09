@@ -62,7 +62,7 @@
     exports.cancelEdit = function () {
         $("#add-text input").val("");
         $("#add-text textarea").val("");
-        $("#add-text").addClass('is-hidden')();
+        $("#add-text").addClass('is-hidden');
     };
 
     /**
