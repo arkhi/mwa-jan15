@@ -102,6 +102,19 @@
   </head>
   <body>
     <h1>My Diary Entries</h1>
+    <form>
+      <label for="title">Title</label>
+      <input id="title" name="title" type="text">
+
+      <label for="description">Description</label>
+      <textarea name="description" id="description" cols="30" rows="10"></textarea>
+
+      <input id="location" name="location" type="checkbox">
+      <label for="location">Show my present location.</label>
+
+      <button id="submit" name="submit">Post entry</button>
+    </form>
+
     <section class='entries'>
       <article>
         <h2>Wrote my first mobile application</h2>
@@ -138,48 +151,9 @@
 
     <!-- <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script> -->
     <script src="jquery-1.11.2.min.js"></script>
+    <script src="myLittleDiary.js"></script>
     <script>
-      function setHeight($article) {
-        var headerH    = $article.find('h2').outerHeight(true),
-            contentH   = $article.find('p').outerHeight(true);
-
-        if($article.hasClass('open')) {
-          $article.height(headerH + contentH + 'px');
-        } else {
-          $article.height(headerH + 'px');
-        }
-      }
-
-      var $articles = $('article');
-
-      /**
-       * Reset heights when the window is resized or the orientation changes.
-       */
-      $(window).on('resize', function(){
-        $articles.each(function(){
-          setHeight($(this));
-        });
-      });
-
-      /**
-       * Collapse all contents.
-       * Show the user they can click on titles.
-       * Set default heights.
-       * Toggle classes and compute heights on click.
-       */
-      $(document).ready(function(){
-        $articles.each(function(){
-          $(this).addClass('can-open')
-                 .find('h2').addClass('can-click');
-          setHeight($(this));
-        });
-
-        $('.entries').on('click', 'h2', function(){
-          var $article = $(this).closest('article');
-          $article.toggleClass('open');
-          setHeight($article);
-        });
-      });
+      myLittleDiary.init();
     </script>
   </body>
 </html>
