@@ -1,23 +1,26 @@
 var myLittleDiary = (function(){
-  var $articles = $('article');
+  var cfg = {
+    classCanCollapse:      'can-collapse',
+    classClickable:        'can-click',
+    classState:            'open',
+    selectTitles:          '.collapse-toggle',
+    selectDescriptions:    '.collapse-toggled',
+    selectTopEventHandler: '.entries'
+  }
 
-  var setHeight = function setHeight($article) {
-    var headerH  = $article.find('h2').outerHeight(true),
-        contentH = $article.find('p').outerHeight(true);
+  cfg.selectContainers = '.' + cfg.classCanCollapse;
 
-    if($article.hasClass('open')) {
-      $article.height(headerH + contentH + 'px');
-    } else {
-      $article.height(headerH + 'px');
-    }
-  };
+  var $containers = $(cfg.selectContainers);
 
+  /**
+   * Launch basic setup for the application.
+   */
   var init = function init(){
     /**
      * Reset heights when the window is resized or the orientation changes.
      */
     $(window).on('resize', function(){
-      $articles.each(function(){
+      $containers.each(function(){
         setHeight($(this));
       });
     });
@@ -29,19 +32,33 @@ var myLittleDiary = (function(){
      * Toggle classes and compute heights on click.
      */
     $(document).ready(function(){
-      $articles.each(function(){
-        $(this).addClass('can-open')
-               .find('h2').addClass('can-click');
+      $containers.each(function(){
+        $(this).addClass(cfg.classCanCollapse)
+               .find(cfg.selectTitles).addClass(cfg.classClickable);
         setHeight($(this));
       });
 
-      $('.entries').on('click', 'h2', function(){
-        var $article = $(this).closest('article');
-        $article.toggleClass('open');
+      $(cfg.selectTopEventHandler).on('click', cfg.selectTitles, function(){
+        var $article = $(this).closest(cfg.selectContainers);
+        $article.toggleClass(cfg.classState);
         setHeight($article);
       });
     });
   }
+
+  /**
+   * set height fot targeted element.
+   */
+  var setHeight = function setHeight($container) {
+    var headerH  = $container.find(cfg.selectTitles).outerHeight(true),
+        contentH = $container.find(cfg.selectDescriptions).outerHeight(true);
+
+    if($container.hasClass(cfg.classState)) {
+      $container.height(headerH + contentH + 'px');
+    } else {
+      $container.height(headerH + 'px');
+    }
+  };
 
   /**
    * Make some values public.
