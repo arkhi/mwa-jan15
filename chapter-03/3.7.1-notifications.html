@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' lang='en'>
+  <head>
+    <meta charset='utf-8'/>
+    <meta name='viewport' content='width=device-width'/>
+    <title>Notifications</title>
+  </head>
+  <body>
+    <script>
+      var notification = new Notification(
+                              "Meeting tonight!",
+                              { 
+                                icon: "img/tango-heart.svg",
+                                body: "At my place…"
+                              });
+
+      notification.onshow = function() {
+        setTimeout(notification.close, 15000)
+      }
+    </script>
+  </body>
+</html>
+
+

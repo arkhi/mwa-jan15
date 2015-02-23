@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' lang='en'>
+  <head>
+    <meta charset='utf-8'/>
+    <meta name='viewport' content='width=device-width'/>
+    <title>Worker RayTracer</title>
+  </head>
+  <body>
+    <div id='zone'>
+      <canvas width='1080' height='960' id='output'></canvas>
+    </div>
+    <button id='render'>Render!</button>
+    <pre id='log'></pre>
+    <script type='text/javascript'>
+      var logEl = document.getElementById("log")
+      ,   ctx = document.getElementById("output").getContext("2d");
+      function log (str) {
+          logEl.textContent += str + "\n";
+      }
+      function render () {
+          var tracer = new Worker("worker-tracer.js");
+          tracer.onmessage = function (ev) {
+              var type = ev.data.type;
+              if ("start" === type) {
+                  log("Processing started!");
+              }
+              else if ("image" === type) {
+                  ctx.putImageData(ev.data.imageData, 0, 0);
+              }
+              else if ("end" === type) {
+                  log("Processing terminated in " + ev.data.time + " milliseconds.");
+                  tracer.terminate();
+              }
+              else {
+                  log("Unknown response from worker.");
+              }
+          };
+          tracer.postMessage({
+              width:    1080
+          ,   height:   960
+          ,   scene:    scene
+          ,   canvas:   ctx.createImageData(1080, 960)
+          });
+      }
+      document.getElementById("render").onclick = render;
+      
+      var scene = {
+          background: [0, 0, 0]
+      ,   shapes:     [
+              {
+                  id:       "infinity"
+              ,   type:     "plane"
+              ,   offset:   0
+              ,   surface:  "checkerboard"
+              ,   normal:   [0, 1, 0]
+              }
+          ,   {
+                  id:       "big-sphere"
+              ,   type:     "sphere"
+              ,   radius:   1
+              ,   surface:  "shiny"
+              ,   centre:   [0, 1, 0]
+              }
+          ,   {
+                  id:       "lil-sphere"
+              ,   type:     "sphere"
+              ,   radius:   0.5
+              ,   surface:  "shiny"
+              ,   centre:   [-1, 0.5, 1.5]
+              }
+          ]
+      ,   camera: {
+              position: [3, 2, 4]
+          ,   lookAt:   [-1, 0.5, 0]
+          }
+      ,   lights: [
+              {
+                  position: [-2, 2.5, 0]
+              ,   colour:   [0.49, 0.07, 0.07]
+              }
+          ,   {
+                  position: [1.5, 2.5, 1.5]
+              ,   colour:   [0.07, 0.07, 0.49]
+              }
+          ,   {
+                  position: [1.5, 2.5, -1.5]
+              ,   colour:   [0.07, 0.49, 0.07]
+              }
+          ,   {
+                  position: [0, 3.5, 0]
+              ,   colour:   [0.21, 0.21, 0.35]
+              }
+          ]
+      };
+    </script>
+  </body>
+</html>
