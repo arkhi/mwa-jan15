@@ -3,9 +3,11 @@ var myLittleDiary = (function(){
     classCanCollapse:      'can-collapse',
     classClickable:        'can-click',
     classState:            'open',
+
     selectTitles:          '.collapse-toggle',
     selectDescriptions:    '.collapse-toggled',
-    selectTopEventHandler: '.entries'
+    selectTopEventHandler: '.entries',
+    selectFormAddEntry:    '#add-entry'
   }
 
   cfg.selectContainers = '.' + cfg.classCanCollapse;
@@ -33,8 +35,7 @@ var myLittleDiary = (function(){
      */
     $(document).ready(function(){
       $containers.each(function(){
-        $(this).addClass(cfg.classCanCollapse)
-               .find(cfg.selectTitles).addClass(cfg.classClickable);
+        $(this).find(cfg.selectTitles).addClass(cfg.classClickable);
         setHeight($(this));
       });
 

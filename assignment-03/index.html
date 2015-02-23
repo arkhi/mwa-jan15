@@ -45,10 +45,9 @@
         }
       }
 
-      article {
-        overflow: hidden;
-        transition-property: height;
-        transition-duration: .5s;
+      h2,
+      .can-collapse {
+        transition-duration: .2s;
       }
 
       h2 {
@@ -56,7 +55,11 @@
         font-size: 1rem;
 
         transition-property: color, background-color;
-        transition-duration: .2s;
+      }
+
+      .can-collapse {
+        overflow: hidden;
+        transition-property: height;
       }
 
       .collapse-toggle:hover {
@@ -103,20 +106,24 @@
   <body>
     <h1>My Diary Entries</h1>
 
-    <form>
-      <label for="title">Title</label>
-      <input id="title" name="title" type="text">
+    <section class="entries">
+      <form id="add-entry" class="can-collapse">
+        <h2 class="collapse-toggle">Add entry</h2>
 
-      <label for="description">Description</label>
-      <textarea name="description" id="description" cols="30" rows="10"></textarea>
+        <div class="collapse-toggled">
+          <label for="title">Title</label>
+          <input id="title" name="title" type="text">
+          
+          <label for="description">Description</label>
+          <textarea name="description" id="description" cols="30" rows="10"></textarea>
+          
+          <input id="location" name="location" type="checkbox">
+          <label for="location">Show my present location.</label>
+          
+          <button id="submit" name="submit">Post entry</button>
+        </div>
+      </form>
 
-      <input id="location" name="location" type="checkbox">
-      <label for="location">Show my present location.</label>
-
-      <button id="submit" name="submit">Post entry</button>
-    </form>
-
-    <section class='entries'>
       <article class="can-collapse">
         <h2 class="collapse-toggle">Wrote my first mobile application</h2>
         <p class="collapse-toggled">
