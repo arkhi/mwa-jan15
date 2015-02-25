@@ -7,12 +7,32 @@ var myLittleDiary = (function(){
     selectTitles:          '.collapse-toggle',
     selectDescriptions:    '.collapse-toggled',
     selectTopEventHandler: '.entries',
-    selectFormAddEntry:    '#add-entry'
+    selectFormAddEntry:    '#add-entry',
+
+    tplEntry:              '#tpl-entry',
+
+    dependencies:          [
+      'jQuery',
+      jQuery.templates
+    ]
   }
 
   cfg.selectContainers = '.' + cfg.classCanCollapse;
 
   var $containers = $(cfg.selectContainers);
+
+  /**
+   * Check that dependies are met.
+   * @param  {array}   Ordered list of window properties or variables.
+   * @return {string}  Message explaining which dependency is missing.
+   */
+  $(cfg.dependencies).each(function(){
+    if(undefined === typeof window[this] || undefined === typeof this) {
+      var error = this + ' is a missing dependency!';
+      console.log(error);
+      return error;
+    }
+  })
 
   /**
    * Launch basic setup for the application.
@@ -35,7 +55,7 @@ var myLittleDiary = (function(){
      */
     $(document).ready(function(){
       $containers.each(function(){
-        $(this).find(cfg.selectTitles).addClass(cfg.classClickable);
+        showClickable($(this));
         setHeight($(this));
       });
 
@@ -45,10 +65,18 @@ var myLittleDiary = (function(){
         setHeight($article);
       });
     });
+
+    /**
+     * Check if some entries were added dynamicaly
+     * @param  {object}  data  jQuery objects to operate on.
+     */
+    $(cfg.selectTopEventHandler).on('entryAdded', function(event, data){
+      showClickable(data.object);
+    });
   }
 
   /**
-   * set height fot targeted element.
+   * Set height fot targeted element.
    */
   var setHeight = function setHeight($container) {
     var headerH  = $container.find(cfg.selectTitles).outerHeight(true),
@@ -62,9 +90,38 @@ var myLittleDiary = (function(){
   };
 
   /**
+   * Add entry in the list of existing queries.
+   * @param {object}  data  Contains the structure to fill in the template.
+   *                        This object has to have an "entryId" property.
+   */
+  var addEntry = function addEntry(data) {
+    var $templateEntry = $.templates(cfg.tplEntry);
+    var output         = $templateEntry.render(data);
+
+    $(cfg.selectTopEventHandler).append(output)
+                                .trigger('entryAdded', [{
+                                  object: $('#' + data.entryId)
+                                }]);
+  };
+
+  /**
+   * Give visual hints that some content is actionable through JS.
+   * @param  {jQuery}  $objects  Containers following the template for entries.
+   */
+  var showClickable = function showClickable($objects) {
+    $objects.find(cfg.selectTitles).addClass(cfg.classClickable);
+    setHeight($objects);
+  }
+
+  /**
+   * Initialize the layout and behaviors on the page.
+   */
+  init();
+
+  /**
    * Make some values public.
    */
   return {
-    init: init
+    addEntry: addEntry
   };
 })();
