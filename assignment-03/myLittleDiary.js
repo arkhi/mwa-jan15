@@ -85,48 +85,6 @@ var myLittleDiary = (function(){
   }
 
   /**
-   * Set height fot targeted element.
-   * @param {jQuery} $container Object representing DOM elements.
-   */
-  var setHeight = function setHeight($container) {
-    var headerH  = $container.find(cfg.selectTitles).outerHeight(true),
-        contentH = $container.find(cfg.selectDescriptions).outerHeight(true);
-
-    if($container.hasClass(cfg.classState)) {
-      $container.height(headerH + contentH + 'px');
-    } else {
-      $container.height(headerH + 'px');
-    }
-  };
-
-  /**
-   * Add entry in the list of existing queries.
-   * @param {Array} data Contains the structure of entries to fill in the template.
-   */
-  var addEntryToList = function addEntryToList(entries) {
-    var output    = [],
-        objectsId = [];
-
-    // Create new objects and their references based on entries and templates.
-    try {
-      $.isArray(entries);
-      $.each(entries, function(i, entry){
-        output.push(templatize(cfg.tplEntry, entry));
-        objectsId.push('#' + cfg.entryIDSuf + entry.entryID);
-      });
-    } catch (error) {
-      throw('Data provided is not an array with at least one entry.');
-    }
-
-
-    // Add all objects to DOM, and let event listener know we added specific entries.
-    $(cfg.selectTopEventHandler).append(output)
-                                .trigger('entryAdded', [{
-                                  objects: $(objectsId.join(', '))
-                                }]);
-  };
-
-  /**
    * Populate a template with sone Data
    * @param  {String} tpl  jQuery selector for the template.
    * @param  {JSON}   data Data to be passed to the template.
@@ -138,15 +96,6 @@ var myLittleDiary = (function(){
 
     return output;
   };
-
-  /**
-   * Give visual hints that some content is actionable through JS.
-   * @param {jQuery} $objects Containers following the template for entries.
-   */
-  var showClickable = function showClickable($objects) {
-    $objects.find(cfg.selectTitles).addClass(cfg.classClickable);
-    setHeight($objects);
-  }
 
   /**
    * Display entries stored in the local storage.
@@ -180,6 +129,12 @@ var myLittleDiary = (function(){
     return entries;
   }
 
+  /**
+   * Create a new entry based on the form.
+   * Show it on the document.
+   * Store it into DB.
+   * Notify user!
+   */
   var postEntry = function postEntry() {
     var titleVal = $(cfg.selectFormTitle).val(),
         descVal  = $(cfg.selectFormDesc).val(),
@@ -200,6 +155,33 @@ var myLittleDiary = (function(){
     storeEntry(data);
     notifyUser('Your entry was posted successfully!');
   }
+
+  /**
+   * Add entry in the list of existing queries.
+   * @param {Array} data Contains the structure of entries to fill in the template.
+   */
+  var addEntryToList = function addEntryToList(entries) {
+    var output    = [],
+        objectsId = [];
+
+    // Create new objects and their references based on entries and templates.
+    try {
+      $.isArray(entries);
+      $.each(entries, function(i, entry){
+        output.push(templatize(cfg.tplEntry, entry));
+        objectsId.push('#' + cfg.entryIDSuf + entry.entryID);
+      });
+    } catch (error) {
+      throw('Data provided is not an array with at least one entry.');
+    }
+
+
+    // Add all objects to DOM, and let event listener know we added specific entries.
+    $(cfg.selectTopEventHandler).append(output)
+                                .trigger('entryAdded', [{
+                                  objects: $(objectsId.join(', '))
+                                }]);
+  };
 
   /**
    * Store entry in the local storage and increment the counter.
@@ -235,6 +217,30 @@ var myLittleDiary = (function(){
     console.log('entries in localStorage: ', localStorage);
     console.log('entries in getEntriesFromDB(): ', getEntriesFromDB());
   }
+
+  /**
+   * Give visual hints that some content is actionable through JS.
+   * @param {jQuery} $objects Containers following the template for entries.
+   */
+  var showClickable = function showClickable($objects) {
+    $objects.find(cfg.selectTitles).addClass(cfg.classClickable);
+    setHeight($objects);
+  }
+
+  /**
+   * Set height fot targeted element.
+   * @param {jQuery} $container Object representing DOM elements.
+   */
+  var setHeight = function setHeight($container) {
+    var headerH  = $container.find(cfg.selectTitles).outerHeight(true),
+        contentH = $container.find(cfg.selectDescriptions).outerHeight(true);
+
+    if($container.hasClass(cfg.classState)) {
+      $container.height(headerH + contentH + 'px');
+    } else {
+      $container.height(headerH + 'px');
+    }
+  };
 
   /**
    * Pushes a notification to the browser that will be displayed to the user if this one allows it.
