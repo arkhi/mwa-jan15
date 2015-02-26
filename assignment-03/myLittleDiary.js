@@ -7,7 +7,7 @@ var myLittleDiary = (function(){
     selectTitles:          '.collapse-toggle',
     selectDescriptions:    '.collapse-toggled',
     selectTopEventHandler: '.entries',
-    selectFormAddEntry:    '#add-entry',
+    selectFormPostEntry:   '#post-entry',
 
     tplEntry:              '#tpl-entry',
 
@@ -38,21 +38,17 @@ var myLittleDiary = (function(){
    * Launch basic setup for the application.
    */
   var init = function init(){
-    /**
-     * Reset heights when the window is resized or the orientation changes.
-     */
+    // Reset heights when the window is resized or the orientation changes.
     $(window).on('resize', function(){
       $containers.each(function(){
         setHeight($(this));
       });
     });
 
-    /**
-     * Collapse all contents.
-     * Show the user they can click on titles.
-     * Set default heights.
-     * Toggle classes and compute heights on click.
-     */
+    // Collapse all contents.
+    // Show the user they can click on titles.
+    // Set default heights.
+    // Toggle classes and compute heights on click.
     $(document).ready(function(){
       $containers.each(function(){
         showClickable($(this));
@@ -71,12 +67,13 @@ var myLittleDiary = (function(){
      * @param  {object}  data  jQuery objects to operate on.
      */
     $(cfg.selectTopEventHandler).on('entryAdded', function(event, data){
-      showClickable(data.object);
+      showClickable(data.objects);
     });
   }
 
   /**
    * Set height fot targeted element.
+   * @param {jQuery}  $container  Object representing DOM elements.
    */
   var setHeight = function setHeight($container) {
     var headerH  = $container.find(cfg.selectTitles).outerHeight(true),
@@ -92,16 +89,41 @@ var myLittleDiary = (function(){
   /**
    * Add entry in the list of existing queries.
    * @param {object}  data  Contains the structure to fill in the template.
-   *                        This object has to have an "entryId" property.
+   *                        This object has to have an "entryId" property to know which entries were
+   *                        added.
    */
   var addEntry = function addEntry(data) {
-    var $templateEntry = $.templates(cfg.tplEntry);
-    var output         = $templateEntry.render(data);
+    var output    = [],
+        objectsId = [];
 
+    // Create new objects and their references based on data and templates.
+    if($.isArray(data)) {
+      $.each(data, function(i, entry){
+        output.push(templatize(cfg.tplEntry, entry));
+        objectsId.push('#' + entry.entryId);
+      });
+    } else {
+      throw('Data is not an array.');
+    }
+
+    // Add all objects to DOM, and let event listener know we added specific entries.
     $(cfg.selectTopEventHandler).append(output)
                                 .trigger('entryAdded', [{
-                                  object: $('#' + data.entryId)
+                                  objects: $(objectsId.join(', '))
                                 }]);
+  };
+
+  /**
+   * [templatize description]
+   * @param  {[type]} tpl   [description]
+   * @param  {[type]} entry [description]
+   * @return {[type]}       [description]
+   */
+  var templatize = function templatize(tpl, entry) {
+    var $templateEntry = $.templates(tpl),
+        output         = $templateEntry.render(entry);
+
+    return output;
   };
 
   /**
@@ -113,14 +135,10 @@ var myLittleDiary = (function(){
     setHeight($objects);
   }
 
-  /**
-   * Initialize the layout and behaviors on the page.
-   */
+  // Initialize the layout and behaviors on the page.
   init();
 
-  /**
-   * Make some values public.
-   */
+  // Make some values public.
   return {
     addEntry: addEntry
   };

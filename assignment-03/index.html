@@ -102,12 +102,17 @@
         cursor: pointer;
       }
 
+      /* form */
+
       .add-entry {
         border: solid #999;
         border-width: 1px 0;
         text-transform: uppercase;
-        background-color: #f964c2;
+        background-color: #f9baf5;
       }
+
+      
+
     </style>
   </head>
   <body>
@@ -118,16 +123,24 @@
         <h2 class="add-entry collapse-toggle">Add entry</h2>
 
         <div class="collapse-toggled">
-          <label for="title">Title</label>
-          <input id="title" name="title" type="text">
+          <div class="block">
+            <label for="title">Title</label>
+            <input id="title" name="title" type="text">
+          </div>
           
-          <label for="description">Description</label>
-          <textarea name="description" id="description" cols="30" rows="10"></textarea>
+          <div class="block">
+            <label for="description">Description</label>
+            <textarea name="description" id="description" cols="30" rows="10"></textarea>
+          </div>
           
-          <input id="location" name="location" type="checkbox">
-          <label for="location">Show my present location.</label>
+          <div class="block">
+            <input id="location" name="location" type="checkbox">
+            <label for="location">Show my present location.</label>
+          </div>
           
-          <button id="submit" name="submit">Post entry</button>
+          <div class="block">
+            <button id="post-entry" name="submit" type="submit">Post entry</button>
+          </div>
         </div>
       </form>
 
@@ -172,29 +185,31 @@
     <script id="tpl-entry" type="text/x-jsrender">
       <article id="{{:entryId}}" class="can-collapse">
         <h2 class="collapse-toggle">{{:title}}</h2>
-        <p class="collapse-toggled">
+        <div class="collapse-toggled">
           {{:description}}
-        </p>
+        </div>
       </article>
     </script>
 
     <script>
-      var entry = {
-        'entryId'     : 'entry-1',
-        'title'       : 'Wrote my first mobile application',
-        'description' : 'Today I wrote my first mobile application. It was great! I had huge amounts of fun, it was \
-          a lot easier than I expected, and I was so happy I spent the rest of the day celebrating. \
-          Today I wrote my first mobile application. It was great! I had huge amounts of fun, it was \
-          a lot easier than I expected, and I was so happy I spent the rest of the day celebrating. \
-          Today I wrote my first mobile application. It was great! I had huge amounts of fun, it was \
-          a lot easier than I expected, and I was so happy I spent the rest of the day celebrating. \
-          Today I wrote my first mobile application. It was great! I had huge amounts of fun, it was \
-          a lot easier than I expected, and I was so happy I spent the rest of the day celebrating. \
-          Today I wrote my first mobile application. It was great! I had huge amounts of fun, it was \
-          a lot easier than I expected, and I was so happy I spent the rest of the day celebrating.'
+      var entries = [{
+        'entryId'     : 'entry-23',
+        'title'       : 'Entry generated with a JS object',
+        'description' : 'The following object will populate a template:\n'
+          + '<code><pre>var entry = {\n'
+          + '  \'entryId\'     : \'entry-23\',\n'
+          + '  \'title\'       : \'Entry generated with a JS object\',\n'
+          + '  \'description\' : \'The following object will populate a template:\'\n'
+          + '      [rince and repeat…]\n'
+          + '}</pre></code>'
       }
+    , {
+        'entryId'     : 'entry-27',
+        'title'       : 'Entry generated with a JS object',
+        'description' : 'Just use whatever content here and watch it happen!'
+      }]
 
-      myLittleDiary.addEntry(entry);
+      myLittleDiary.addEntry(entries);
     </script>
   </body>
 </html>
