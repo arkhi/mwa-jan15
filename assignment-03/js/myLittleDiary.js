@@ -84,6 +84,8 @@ var myLittleDiary = (function(){
       });
 
       displayLocalEntries();
+
+      testNotifications();
     });
 
     /**
@@ -235,7 +237,8 @@ var myLittleDiary = (function(){
     try {
       $('#' + cfg.entryIDSuf + entryID).remove();
     } catch (exception) {
-      notifyUser('Sorry, the entry could not be removed from the DOM.');
+      notifyUser('Sorry, the entry could not be removed from the DOM.',
+                 'error');
       throw(exception.message);
     }
   };
@@ -248,7 +251,8 @@ var myLittleDiary = (function(){
     try {
       localStorage.removeItem(entryID);
     } catch (exception) {
-      notifyUser('Sorry, the entry could not be removed from the DB.');
+      notifyUser('Sorry, the entry could not be removed from the DB.',
+                 'error');
       throw(exception.message);
     }
   };
@@ -299,6 +303,16 @@ var myLittleDiary = (function(){
   };
 
   /**
+   * Test if notifications are allowed and ask in case they’re not.
+   */
+  var testNotifications = function() {
+    console.log('Notification.permission: ' + Notification.permission);
+    if('default' === Notification.permission) {
+      Notification.requestPermission();
+    }
+  }
+
+  /**
    * Pushes a notification to the browser that will be displayed to the user if this one allows it.
    * @param  {String} body  Describe what happened and eventually what needs to be done.
    *
@@ -308,17 +322,18 @@ var myLittleDiary = (function(){
   var notifyUser = function notifyUser(body) {
     var argumentsL = arguments.length,
         icon       = "img/dialog-information.svg",
-        title      = 'Over here!';
+        title      = 'Good!';
 
     if(2 === argumentsL) {
       switch(arguments[1]) {
         case 'error':
           icon  = "img/dialog-error.svg";
           title = 'Oopsie…';
+          break;
         case 'warning':
           icon  = "img/dialog-warning.svg";
-          title = 'Something’s wrong, but nothing’s broken!';
-        default:
+          title = 'Something’s kinda wrong (but not broken)!';
+          break;
       }
     }
 
@@ -332,6 +347,7 @@ var myLittleDiary = (function(){
         icon: icon,
         body: body
       });
+
     console.log(body);
   };
 
