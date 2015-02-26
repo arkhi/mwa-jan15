@@ -125,16 +125,16 @@
         <div class="collapse-toggled">
           <div class="block">
             <label for="title">Title</label>
-            <input id="title" name="title" type="text">
+            <input id="title" name="title" type="text" required>
           </div>
           
           <div class="block">
             <label for="description">Description</label>
-            <textarea name="description" id="description" cols="30" rows="10"></textarea>
+            <textarea name="description" id="description" cols="30" rows="10" required></textarea>
           </div>
           
           <div class="block">
-            <input id="location" name="location" type="checkbox">
+            <input id="location" name="location" type="checkbox" value="location[ok]">
             <label for="location">Show my present location.</label>
           </div>
           
@@ -183,7 +183,7 @@
     <script src="myLittleDiary.js"></script>
 
     <script id="tpl-entry" type="text/x-jsrender">
-      <article id="{{:entryId}}" class="can-collapse">
+      <article id="entry-{{:entryID}}" class="can-collapse">
         <h2 class="collapse-toggle">{{:title}}</h2>
         <div class="collapse-toggled">
           {{:description}}
@@ -191,25 +191,8 @@
       </article>
     </script>
 
-    <script>
-      var entries = [{
-        'entryId'     : 'entry-23',
-        'title'       : 'Entry generated with a JS object',
-        'description' : 'The following object will populate a template:\n'
-          + '<code><pre>var entry = {\n'
-          + '  \'entryId\'     : \'entry-23\',\n'
-          + '  \'title\'       : \'Entry generated with a JS object\',\n'
-          + '  \'description\' : \'The following object will populate a template:\'\n'
-          + '      [rince and repeat…]\n'
-          + '}</pre></code>'
-      }
-    , {
-        'entryId'     : 'entry-27',
-        'title'       : 'Entry generated with a JS object',
-        'description' : 'Just use whatever content here and watch it happen!'
-      }]
-
-      myLittleDiary.addEntry(entries);
+    <script id="tpl-location" type="text/x-jsrender">
+      <footer class="entry-location">{{:location}}</footer>
     </script>
   </body>
 </html>
