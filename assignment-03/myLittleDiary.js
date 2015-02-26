@@ -1,12 +1,17 @@
 var myLittleDiary = (function(){
   var cfg = {
+    debug: true,
+
     classCanCollapse: 'can-collapse',
     classClickable:   'can-click',
     classState:       'open',
 
+    selectTopEventHandler: '.entries',
     selectTitles:          '.collapse-toggle',
     selectDescriptions:    '.collapse-toggled',
-    selectTopEventHandler: '.entries',
+    selectActionDelete:    '.action-delete',
+    selectActionEdit:      '.action-edit',
+
     selectFormPostEntry:   '#post-entry',
     selectFormTitle:       '#title',
     selectFormDesc:        '#description',
@@ -42,6 +47,9 @@ var myLittleDiary = (function(){
    * Launch basic setup for the application.
    */
   var init = function init(){
+    if (cfg.debug) {
+      $('html').addClass('debug');
+    };
     var $containers = $(cfg.selectContainers);
 
     // Reset heights when the window is resized or the orientation changes.
@@ -65,6 +73,14 @@ var myLittleDiary = (function(){
         var $article = $(this).closest(cfg.selectContainers);
         $article.toggleClass(cfg.classState);
         setHeight($article);
+      });
+
+      $(cfg.selectTopEventHandler).on('click', cfg.selectActionDelete, function(event){
+        event.preventDefault();
+        var $article = $(this).closest(cfg.selectContainers),
+            entryID  = $article.attr('id').replace(cfg.entryIDSuf, '');
+
+        removeEntry(entryID);
       });
 
       displayLocalEntries();
@@ -101,7 +117,7 @@ var myLittleDiary = (function(){
    * Display entries stored in the local storage.
    */
   var displayLocalEntries = function displayLocalEntries() {
-    addEntryToList(getEntriesFromDB());
+    addEntryToDOM(getEntriesFromDB());
   }
 
   /**
@@ -151,7 +167,7 @@ var myLittleDiary = (function(){
       'location':    locationVal
     };
 
-    addEntryToList([data]);
+    addEntryToDOM([data]);
     storeEntry(data);
     notifyUser('Your entry was posted successfully!');
   }
@@ -160,7 +176,7 @@ var myLittleDiary = (function(){
    * Add entry in the list of existing queries.
    * @param {Array} data Contains the structure of entries to fill in the template.
    */
-  var addEntryToList = function addEntryToList(entries) {
+  var addEntryToDOM = function addEntryToDOM(entries) {
     var output    = [],
         objectsId = [];
 
@@ -194,6 +210,46 @@ var myLittleDiary = (function(){
     } catch (e) {
       notifyUser('Sorry, there was a problem while submitting your entry, please check console log.',
                  'warning');
+    }
+  };
+
+  /**
+   * Remove an entry from the document.
+   * Remove it into DB.
+   * Notify user!
+   */
+  var removeEntry = function removeEntry(entryID) {
+    var title = JSON.parse(localStorage.getItem(entryID)).title;
+
+    removeEntryFromDOM(entryID);
+    removeEntryFromDB(entryID);
+
+    notifyUser('The post “' + title + '” was removed successfully!');
+  };
+
+  /**
+   * Remove and entry from the DOM or notify the user if a problem occured.
+   * @param  {Integer} entryID ID associated with the entry
+   */
+  var removeEntryFromDOM = function removeEntryFromDOM(entryID) {
+    try {
+      $('#' + cfg.entryIDSuf + entryID).remove();
+    } catch (exception) {
+      notifyUser('Sorry, the entry could not be removed from the DOM.');
+      throw(exception.message);
+    }
+  };
+
+  /**
+   * Remove an entry from the local storage or notify the user if a problem occured.
+   * @param  {Integer} entryID ID associated with the entry
+   */
+  var removeEntryFromDB = function removeEntryFromDB(entryID) {
+    try {
+      localStorage.removeItem(entryID);
+    } catch (exception) {
+      notifyUser('Sorry, the entry could not be removed from the DB.');
+      throw(exception.message);
     }
   };
 
@@ -284,6 +340,7 @@ var myLittleDiary = (function(){
 
   // Make some values public.
   return {
-    listEntries: listEntries
+    listEntries: listEntries,
+    removeEntry: removeEntry
   };
 })();
