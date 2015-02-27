@@ -1,6 +1,8 @@
 var myLittleDiary = (function(){
   var cfg = {
     debug: true,
+    selectDevActions: '#dev-actions',
+    selectDevAction:  '.action',
 
     classCanCollapse: 'can-collapse',
     classClickable:   'can-click',
@@ -19,6 +21,15 @@ var myLittleDiary = (function(){
 
     entryIDSuf: 'entry-',
     tplEntry:   '#tpl-entry',
+
+    mapID:       'map',
+    selectMap:   '#map',
+    hasLocation: false,
+    geoOptions:  {
+      enableHighAccuracy: true,
+      maximumAge : 30000,
+      timeout : 27000
+    },
 
     dependencies:          [
       'jQuery',
@@ -86,6 +97,12 @@ var myLittleDiary = (function(){
       displayLocalEntries();
 
       testNotifications();
+
+      placeMarkers(drawMap());
+
+      $(cfg.selectDevActions).on('click', cfg.selectDevAction, function(){
+        myLittleDiary[$(this).data('action')]();
+      });
     });
 
     /**
@@ -148,30 +165,148 @@ var myLittleDiary = (function(){
   }
 
   /**
+   * Get location based on environment and user interaction.
+   * @return {Promise} A deferred object to be used by the caller.
+   */
+  var getLocation = function getLocation() {
+    var checking = new $.Deferred();
+
+    function getLocationSuccess(position) {
+      var latitude = position.coords.latitude;
+      var longitude = position.coords.longitude;
+      var altitude = position.coords.altitude;
+      var accuracy = position.coords.accuracy;
+
+      var location = {
+        latitude: latitude,
+        longitude: longitude,
+        altitude: altitude,
+        accuracy: accuracy
+      }
+
+      checking.resolve({
+        msg: 'Got your location!',
+        location: location
+      });
+    }
+
+    function getLocationError(error) {
+      switch (error.code) {
+        case 1:
+          errorMsg = 'As defined in your settings, your location won’t be shared.';
+          break;
+        case 2:
+          errorMsg = 'Your location is not available at the moment.';
+          break;
+        case 3:
+          errorMsg = 'We could not get your location because the operation timed out. You might try'
+                   + ' to edit your post later.';
+          break;
+      }
+
+      checking.resolve({
+        msg: errorMsg,
+        location: false
+      });
+    }
+
+    function waiting() {
+      if ('pending' === checking.state()) {
+        checking.notify('Waiting for user and browser to take action.');
+      }
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(getLocationSuccess, getLocationError, cfg.geoOptions);
+    }
+
+    return checking.promise();
+  };
+
+  /**
+   * Draw maps corresponding to locations.
+   */
+  var drawMap = function drawMap() {
+    var map = L.map(cfg.mapID).setView([0, 0], 13);
+
+    L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+        '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+        'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+      id: 'examples.map-i875mjb7'
+    }).addTo(map);
+
+    return map;
+  };
+
+  /**
+   * Place markers on the map for each entry.
+   * @param  {Map} map A Leaflet Map object.
+   */
+  var placeMarkers = function placeMarkers(map) {
+    var boundaries = [];
+
+    $.each(getEntriesFromDB(), function(i, entry){
+      if (null != entry.location) {
+        var lat    = entry.location.latitude,
+            lon    = entry.location.longitude,
+            marker = L.marker([lat, lon]).addTo(map);
+
+        marker.bindPopup('<b>' + entry.title + '</b>').openPopup();
+        boundaries.push([lat,lon]);
+      }
+    });
+
+    if (boundaries.length) {
+      map.fitBounds(boundaries);
+    }
+  };
+
+  /**
    * Create a new entry based on the form.
    * Show it on the document.
    * Store it into DB.
    * Notify user!
    */
   var postEntry = function postEntry() {
-    var titleVal = $(cfg.selectFormTitle).val(),
-        descVal  = $(cfg.selectFormDesc).val(),
-        locationVal = $(cfg.selectFormLocation).val();
-  
+    var titleVal     = $(cfg.selectFormTitle).val(),
+        descVal      = $(cfg.selectFormDesc).val(),
+        useLocation = $(cfg.selectFormLocation).prop('checked');
+
     if (!titleVal || !descVal) {
       return;
     };
 
-    data = {
-      'entryID':     cfg.counter + 1,
-      'title':       titleVal,
-      'description': descVal,
-      'location':    locationVal
-    };
+    function processPost(answer) {
+      data = {
+        'entryID':     cfg.counter + 1,
+        'title':       titleVal,
+        'description': descVal,
+        'location':    answer.location
+      };
 
-    addEntryToDOM([data]);
-    storeEntry(data);
-    notifyUser('Your entry was posted successfully!');
+      addEntryToDOM([data]);
+      storeEntry(data);
+      notifyUser('Your entry was posted successfully! ' + answer.msg);
+    }
+
+    if (true === useLocation) {
+      getLocation(useLocation)
+        .progress(function(answer){
+          console.log(answer);
+        })
+        .done(function(answer){
+          console.log(answer);
+          processPost(answer);
+        })
+        .fail(function(answer){
+          console.log(answer);
+          processPost(answer);
+        });
+    } else {
+      processPost(false);
+    }
   }
 
   /**
@@ -195,7 +330,7 @@ var myLittleDiary = (function(){
 
 
     // Add all objects to DOM, and let event listener know we added specific entries.
-    $(cfg.selectTopEventHandler).append(output)
+    $(cfg.selectTopEventHandler).prepend(output.reverse())
                                 .trigger('entryAdded', [{
                                   objects: $(objectsId.join(', '))
                                 }]);
@@ -279,6 +414,15 @@ var myLittleDiary = (function(){
   }
 
   /**
+   * Clear all content from localStorage.
+   */
+  var clearLocalStorage = function clearLocalStorage() {
+    localStorage.clear();
+    $(cfg.selectContainers).remove();
+    notifyUser('local storage cleared');
+  }
+
+  /**
    * Give visual hints that some content is actionable through JS.
    * @param {jQuery} $objects Containers following the template for entries.
    */
@@ -351,12 +495,71 @@ var myLittleDiary = (function(){
     console.log(body);
   };
 
+  /**
+   * Create dummy entries to ease development.
+   */
+  var populate = function populate() {
+    var dummyEntries = [
+      {
+        'entryID':     cfg.counter + 1,
+        'title':       'Test of HTML in the description!',
+        'description': 'let’s write something (again)…The following object will populate a template:\n'
+                     + '<code><pre>var entries = [{\n'
+                     + '  \'entryId\'     : 1,\n'
+                     + '  \'title\'       : \'Entry generated with a JS object\',\n'
+                     + '  \'description\' : \'The following object will populate a template:\'\n'
+                     + '  [rince and repeat…]\n'
+                     + '}]</pre></code>',
+        'location':    {
+          "latitude":41.2125227,
+          "longitude":21.45133369999999,
+          "altitude":20,
+          "accuracy":30
+        }
+      },
+      {
+        'entryID':     cfg.counter + 2,
+        'title':       'One more tiiiiime!',
+        'description': 'Pour faiiiire un succès de laaaaarmes !',
+        'location':    {
+          "latitude":61.2125227,
+          "longitude":-21.45133369999999,
+          "altitude":0,
+          "accuracy":53
+        }
+      },
+      {
+        'entryID':     cfg.counter + 3,
+        'title':       'Le poinçonneur des Lilas',
+        'description': 'Des p’tits trous, des p’tits trous ! Toujours des p’tits trous…',
+        'location':    {
+          "latitude":-31.2125227,
+          "longitude":-121.45133369999999,
+          "altitude":60,
+          "accuracy":10
+        }
+      },
+    ];
+
+    $.each(dummyEntries, function(i, entry){
+      storeEntry(entry);
+    });
+
+    addEntryToDOM(dummyEntries);
+    notifyUser('Dummy entries were added!');
+  }
+
+// -------------------------------------------------------------------------------------------------
+// init and public variables
+// -------------------------------------------------------------------------------------------------
+
   // Initialize the layout and behaviors on the page.
   init();
 
   // Make some values public.
   return {
     listEntries: listEntries,
-    removeEntry: removeEntry
+    populate: populate,
+    clearLocalStorage: clearLocalStorage
   };
 })();
