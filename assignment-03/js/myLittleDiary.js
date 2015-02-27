@@ -248,7 +248,7 @@ var myLittleDiary = (function(){
     var boundaries = [];
 
     $.each(getEntriesFromDB(), function(i, entry){
-      if (null != entry.location) {
+      if (entry.location) {
         var lat    = entry.location.latitude,
             lon    = entry.location.longitude,
             marker = L.marker([lat, lon]).addTo(map);
