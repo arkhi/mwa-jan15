@@ -1,6 +1,6 @@
 var myLittleDiary = (function(){
   var cfg = {
-    debug: true,
+    debug: false,
     selectDevActions: '#dev-actions',
     selectDevAction:  '.action',
 
@@ -19,11 +19,16 @@ var myLittleDiary = (function(){
     selectFormDesc:        '#description',
     selectFormLocation:    '#location',
 
+    templates: {
+      entry: {
+        id:   'tpl-entry'
+      }
+    },
     entryIDSuf: 'entry-',
-    tplEntry:   '#tpl-entry',
 
     mapID:       'map',
     selectMap:   '#map',
+    classMapOK:  'has-content',
     hasLocation: false,
     geoOptions:  {
       enableHighAccuracy: true,
@@ -31,9 +36,9 @@ var myLittleDiary = (function(){
       timeout : 27000
     },
 
-    dependencies:          [
+    dependencies: [
+      'jsviews',
       'jQuery',
-      jQuery.templates,
       'localStorage'
     ],
   }
@@ -43,24 +48,32 @@ var myLittleDiary = (function(){
 
   /**
    * Check that dependies are met.
-   * @param  {array}  Orderedlist of window properties or variables.
-   * @return {string} Message explaining which dependency is missing.
+   * @param  {array}   dependencies Methods needed for this application to run
+   * @return {boolean}              Can we launch the app?
    */
-  $(cfg.dependencies).each(function(){
-    if(undefined === typeof window[this] || undefined === typeof this) {
-      var error = this + ' is a missing dependency!';
-      console.log(error);
-      return error;
+  var testDependencies = function testDependencies() {
+    var i, depLength = cfg.dependencies.length;
+
+    for (i = 0; i < depLength; i++) {
+      if('undefined' === typeof window[cfg.dependencies[i]]) {
+        var error = 'This application needs ' + cfg.dependencies[i] + ' (and it cannot be found).';
+        notifyUser(error, 'error');
+        return false;
+      }
     }
-  })
+
+    return true;
+  };
 
   /**
    * Launch basic setup for the application.
    */
   var init = function init(){
-    if (cfg.debug) {
-      $('html').addClass('debug');
-    };
+    // Stop script if a depency is missing.
+    if(!testDependencies()) {
+      return ('Oooopsie! Some dependencies are missing!');
+    }
+
     var $containers = $(cfg.selectContainers);
 
     // Reset heights when the window is resized or the orientation changes.
@@ -75,17 +88,20 @@ var myLittleDiary = (function(){
     // Set default heights.
     // Toggle classes and compute heights on click.
     $(document).ready(function(){
+      // Collapse collapsable items.
       $containers.each(function(){
         showClickable($(this));
         setHeight($(this));
       });
 
+      // Handle collapsable items.
       $(cfg.selectTopEventHandler).on('click', cfg.selectTitles, function(){
         var $article = $(this).closest(cfg.selectContainers);
         $article.toggleClass(cfg.classState);
         setHeight($article);
       });
 
+      // Handle deletion of entries.
       $(cfg.selectTopEventHandler).on('click', cfg.selectActionDelete, function(event){
         event.preventDefault();
         var $article = $(this).closest(cfg.selectContainers),
@@ -94,15 +110,27 @@ var myLittleDiary = (function(){
         removeEntry(entryID);
       });
 
-      displayLocalEntries();
-
-      testNotifications();
-
-      placeMarkers(drawMap());
-
+      // Handle dev tools and related actions.
+      if (cfg.debug) {
+        $('html').addClass('debug');
+      };
       $(cfg.selectDevActions).on('click', cfg.selectDevAction, function(){
         myLittleDiary[$(this).data('action')]();
       });
+
+      // Test status for notifications.
+      testNotifications();
+
+      // Register templates.
+      $.each(cfg.templates, function(tpl){
+        jsviews.templates(cfg.templates[tpl].id, $('#' + cfg.templates[tpl].id).html());
+      });
+
+      // Display entries in localStorage.
+      displayLocalEntries();
+
+      // Draw map with markers.
+      placeMarkers(drawMap(cfg.selectTopEventHandler));
     });
 
     /**
@@ -121,13 +149,12 @@ var myLittleDiary = (function(){
 
   /**
    * Populate a template with sone Data
-   * @param  {String} tpl  jQuery selector for the template.
+   * @param  {String} tpl  ID selector for the template.
    * @param  {JSON}   data Data to be passed to the template.
    * @return {jQuery}      Rendered templates as a jQuery object.
    */
   var templatize = function templatize(tpl, entry) {
-    var $templateEntry = $.templates(tpl),
-        output         = $templateEntry.render(entry);
+    var output = jsviews.render[tpl](entry);
 
     return output;
   };
@@ -224,9 +251,20 @@ var myLittleDiary = (function(){
   };
 
   /**
-   * Draw maps corresponding to locations.
+   * Draw a map.
+   * @param  {string} containerID CSS selector of an element to place the map in
+   * @return {map}                Leaflet map object
    */
-  var drawMap = function drawMap() {
+  var drawMap = function drawMap(containerID) {
+    // Test availability for leaflet and stop here if it is not available.
+    // Let CSS know it can style the map if leaflet is here.
+    try {
+      L.version;
+      $(cfg.selectMap).addClass(cfg.classMapOK);
+    } catch (e) {
+      throw(e.message);
+    }
+
     var map = L.map(cfg.mapID).setView([0, 0], 13);
 
     L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
@@ -242,9 +280,14 @@ var myLittleDiary = (function(){
 
   /**
    * Place markers on the map for each entry.
-   * @param  {Map} map A Leaflet Map object.
+   * Fit the map so that all markers are visible.
+   * @param  {Map} map Leaflet Map object.
    */
   var placeMarkers = function placeMarkers(map) {
+    if(undefined === map) {
+      throw('"map" is not defined.');
+    }
+
     var boundaries = [];
 
     $.each(getEntriesFromDB(), function(i, entry){
@@ -270,8 +313,8 @@ var myLittleDiary = (function(){
    * Notify user!
    */
   var postEntry = function postEntry() {
-    var titleVal     = $(cfg.selectFormTitle).val(),
-        descVal      = $(cfg.selectFormDesc).val(),
+    var titleVal    = $(cfg.selectFormTitle).val(),
+        descVal     = $(cfg.selectFormDesc).val(),
         useLocation = $(cfg.selectFormLocation).prop('checked');
 
     if (!titleVal || !descVal) {
@@ -321,13 +364,12 @@ var myLittleDiary = (function(){
     try {
       $.isArray(entries);
       $.each(entries, function(i, entry){
-        output.push(templatize(cfg.tplEntry, entry));
+        output.push(templatize(cfg.templates['entry'].id, entry));
         objectsId.push('#' + cfg.entryIDSuf + entry.entryID);
       });
-    } catch (error) {
-      throw('Data provided is not an array with at least one entry.');
+    } catch (e) {
+      throw('Data provided is not an array with at least one entry: ' + e);
     }
-
 
     // Add all objects to DOM, and let event listener know we added specific entries.
     $(cfg.selectTopEventHandler).prepend(output.reverse())
@@ -451,6 +493,7 @@ var myLittleDiary = (function(){
    */
   var testNotifications = function() {
     console.log('Notification.permission: ' + Notification.permission);
+
     if('default' === Notification.permission) {
       Notification.requestPermission();
     }
@@ -550,14 +593,15 @@ var myLittleDiary = (function(){
   }
 
 // -------------------------------------------------------------------------------------------------
-// init and public variables
+// public variables
 // -------------------------------------------------------------------------------------------------
-
-  // Initialize the layout and behaviors on the page.
+  // Initialize the layout and logic on the page.
   init();
 
   // Make some values public.
   return {
+    cfg: cfg,
+    init: init,
     listEntries: listEntries,
     populate: populate,
     clearLocalStorage: clearLocalStorage
