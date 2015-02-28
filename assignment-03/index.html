@@ -64,20 +64,21 @@
         transition-property: height;
       }
 
-      .collapse-toggle:hover {
+      .collapse-trigger:focus,
+      .collapse-trigger:hover {
         background-color: #ddd;
       }
 
-      .collapse-toggle:active {
+      .collapse-trigger:active {
         background-color: #bbb;
       }
 
       /* Referencial for the arrow */
-      .can-collapse .collapse-toggle {
+      .can-collapse .collapse-trigger {
         position: relative;
       }
 
-      .can-collapse .collapse-toggle::after {
+      .can-collapse .collapse-trigger::after {
         position: absolute;
         right: .5rem;
         /* Simulate an arrow with borders as "\2bc8" is not well rendered on all devices. */
@@ -92,11 +93,11 @@
         transition: transform .2s;
       }
 
-      .open .collapse-toggle::after {
+      .open .collapse-trigger::after {
         transform: rotate(90deg);
       }
 
-      .collapse-toggled {
+      .collapse-target {
         padding: 0 .5rem;
       }
 
@@ -146,9 +147,9 @@
 
     <section class="entries">
       <form id="add-entry" class="can-collapse">
-        <h2 class="add-entry collapse-toggle">Add entry</h2>
+        <h2 class="add-entry collapse-trigger">Add entry</h2>
 
-        <div class="collapse-toggled">
+        <div class="collapse-target">
           <div class="block">
             <label for="title">Title</label>
             <input id="title" name="title" type="text" required>
@@ -156,7 +157,7 @@
           
           <div class="block">
             <label for="description">Description</label>
-            <textarea name="description" id="description" cols="30" rows="10" required></textarea>
+            <textarea id="description" name="description" cols="30" rows="10" required></textarea>
           </div>
           
           <div class="block">
@@ -186,26 +187,38 @@
     <script src="js/myLittleDiary.js"></script>
 
     <script id="tpl-entry" type="text/x-jsrender">
-      <article id="entry-{{:entryID}}" class="can-collapse">
-        <h2 class="collapse-toggle">{{:title}}</h2>
-        <div class="collapse-toggled">
+      <article id="entry-{{:entryID}}" class="entry can-collapse">
+        <h2 class="collapse-trigger">{{:title}}</h2>
+        <div class="collapse-target">
           <div class="actions">
-            <a class="action-delete" href="?/delete/{{url:entryID}}" title="delete “{{attr:title}}”">delete</a>
-            <a class="action-edit" href="?/edit/{{url:entryID}}" title="edit “{{attr:title}}”">edit</a>
+            <a class="action" data-action="delete" href="?/delete/{{url:entryID}}" title="delete “{{attr:title}}”">delete</a>
+            <a class="action" data-action="edit" href="?/edit/{{url:entryID}}" title="edit “{{attr:title}}”">edit</a>
           </div>
           {{:description}}
-
-          {{if location tmpl='#tpl-location'/}}
         </div>
       </article>
     </script>
 
-    <script id="tpl-location" type="text/x-jsrender">
-      <footer class="entry-location">
-        latitude:{{:location.latitude}},
-        longitude:{{:location.longitude}},
-        altitude:{{:location.altitude}}
-      </footer>
+    <script id="tpl-edit-entry" type="text/x-jsrender">
+      <form id="edit-entry-{{:entryID}}">
+        <h2 class="collapse-trigger">
+          <input id="title-{{:entryID}}" name="title[{{:entryID}}]" type="text" required value="{{:title}}" />
+        </h2>
+        <div class="collapse-target">
+          <textarea id="description-{{:entryID}}" name="description[{{:entryID}}]"
+                    cols="30" rows="10" required>{{:description}}</textarea>
+          
+          <div class="block">
+            <input id="location-{{:entryID}}" name="location[{{:entryID}}]" type="checkbox" value="ok">
+            <label for="location-{{:entryID}}">Update to my present location.</label>
+          </div>
+          
+          <div class="actions">
+            <button class="action" data-action="submit" href="?/delete/{{url:entryID}}" title="delete “{{attr:title}}”">submit</button>
+            <button type="reset">reset</button>
+          </div>
+        </div>
+      </form>
     </script>
 
     <script>
