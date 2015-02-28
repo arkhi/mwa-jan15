@@ -8,18 +8,18 @@ var myLittleDiary = (function(){
     classClickable:   'can-click',
     classState:       'open',
 
-    selectTopEventHandler: '.entries',
-    selectTitles:          '.collapse-toggle',
-    selectDescriptions:    '.collapse-toggled',
-    selectActionDelete:    '.action-delete',
-    selectActionEdit:      '.action-edit',
+    selectEntriesContainer: '.entries',
+    selectCollapseToggle:   '.collapse-toggle',
+    selectCollapseToggled:  '.collapse-toggled',
+    selectActionDelete:     '.action-delete',
+    selectActionEdit:       '.action-edit',
 
-    selectFormPostEntry:   '#post-entry',
-    selectFormTitle:       '#title',
-    selectFormDesc:        '#description',
-    selectFormLocation:    '#location',
+    selectFormPostEntry: '#post-entry',
+    selectFormTitle:     '#title',
+    selectFormDesc:      '#description',
+    selectFormLocation:  '#location',
 
-    templates: {
+    templates:  {
       entry: {
         id:   'tpl-entry'
       }
@@ -95,14 +95,14 @@ var myLittleDiary = (function(){
       });
 
       // Handle collapsable items.
-      $(cfg.selectTopEventHandler).on('click', cfg.selectTitles, function(){
+      $(cfg.selectEntriesContainer).on('click', cfg.selectCollapseToggle, function(){
         var $article = $(this).closest(cfg.selectContainers);
         $article.toggleClass(cfg.classState);
         setHeight($article);
       });
 
       // Handle deletion of entries.
-      $(cfg.selectTopEventHandler).on('click', cfg.selectActionDelete, function(event){
+      $(cfg.selectEntriesContainer).on('click', cfg.selectActionDelete, function(event){
         event.preventDefault();
         var $article = $(this).closest(cfg.selectContainers),
             entryID  = $article.attr('id').replace(cfg.entryIDSuf, '');
@@ -130,14 +130,14 @@ var myLittleDiary = (function(){
       displayLocalEntries();
 
       // Draw map with markers.
-      placeMarkers(drawMap(cfg.selectTopEventHandler));
+      placeMarkers(drawMap(cfg.selectEntriesContainer));
     });
 
     /**
      * Check if some entries were added dynamicaly
      * @param {object} data jQuery objects to operate on.
      */
-    $(cfg.selectTopEventHandler).on('entryAdded', function(event, data){
+    $(cfg.selectEntriesContainer).on('entryAdded', function(event, data){
       showClickable(data.objects);
     });
 
@@ -337,14 +337,12 @@ var myLittleDiary = (function(){
     if (true === useLocation) {
       getLocation(useLocation)
         .progress(function(answer){
-          console.log(answer);
+          console.log(answer.msg);
         })
         .done(function(answer){
-          console.log(answer);
           processPost(answer);
         })
         .fail(function(answer){
-          console.log(answer);
           processPost(answer);
         });
     } else {
@@ -372,7 +370,7 @@ var myLittleDiary = (function(){
     }
 
     // Add all objects to DOM, and let event listener know we added specific entries.
-    $(cfg.selectTopEventHandler).prepend(output.reverse())
+    $(cfg.selectEntriesContainer).prepend(output.reverse())
                                 .trigger('entryAdded', [{
                                   objects: $(objectsId.join(', '))
                                 }]);
@@ -469,7 +467,7 @@ var myLittleDiary = (function(){
    * @param {jQuery} $objects Containers following the template for entries.
    */
   var showClickable = function showClickable($objects) {
-    $objects.find(cfg.selectTitles).addClass(cfg.classClickable);
+    $objects.find(cfg.selectCollapseToggle).addClass(cfg.classClickable);
     setHeight($objects);
   }
 
@@ -478,8 +476,8 @@ var myLittleDiary = (function(){
    * @param {jQuery} $container Object representing DOM elements.
    */
   var setHeight = function setHeight($container) {
-    var headerH  = $container.find(cfg.selectTitles).outerHeight(true),
-        contentH = $container.find(cfg.selectDescriptions).outerHeight(true);
+    var headerH  = $container.find(cfg.selectCollapseToggle).outerHeight(true),
+        contentH = $container.find(cfg.selectCollapseToggled).outerHeight(true);
 
     if($container.hasClass(cfg.classState)) {
       $container.height(headerH + contentH + 'px');
