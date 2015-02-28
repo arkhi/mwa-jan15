@@ -143,6 +143,13 @@ var myLittleDiary = (function(){
 
             // Draw map with markers.
             placeMarkers(drawMap(cfg.selectEntriesContainer));
+
+            // Update maps if necessary
+            cfg.map.on('layerremove', function(e) {
+                if (0 < cfg.boundaries.length) {
+                    cfg.map.fitBounds(cfg.boundaries);
+                }
+            });
         });
 
         /**
@@ -272,7 +279,7 @@ var myLittleDiary = (function(){
 
         return getLocation()
             .progress(function(answer){
-                console.log(answer.msg);
+                // console.log(answer.msg);
             })
             .done(function(answer){
                 entry.location = answer.location;
@@ -301,7 +308,7 @@ var myLittleDiary = (function(){
         cfg.map = L.map('map').setView([0, 0], 13);
 
         L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
-            maxZoom: 18,
+            maxZoom: 15,
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
                 '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
                 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -323,8 +330,8 @@ var myLittleDiary = (function(){
 
         $.each(getEntriesFromDB(), function(i, entry){
             if (entry.location) {
-                var lat    = entry.location.latitude,
-                    lon    = entry.location.longitude;
+                var lat = entry.location.latitude,
+                    lon = entry.location.longitude;
 
                 addMarker(entry);
             }
@@ -340,7 +347,7 @@ var myLittleDiary = (function(){
 
         cfg.markers[entry.entryID].openPopup();
         cfg.map.panTo(latLng);
-    }
+    };
 
     /**
      * Add a marker for a newly created entry.
@@ -353,20 +360,18 @@ var myLittleDiary = (function(){
         cfg.markers[entry.entryID].bindPopup('<b>' + entry.title + '</b>').openPopup();
         cfg.boundaries.push(latLng);
         cfg.map.fitBounds(cfg.boundaries);
-    }
+    };
 
     /**
-     * Update a marker to match new geolocation.
-     * @param {JSON} entry Structure of an object
+     * Find the index of the matching marker in the boundaries (for update or removal).
+     * @param {JSON}     entry Structure of an object
+     * @return {Integer}       The position of the matching coordinates in the array
      */
-    var updateMarker = function updateMarker (entry) {
+    var findBoundary = function findBoundary(entry) {
         var prevCoords  = cfg.markers[entry.entryID].getLatLng(),
             prevLatLng  = prevCoords.lat + ',' + prevCoords.lng,
-            latLng      = [entry.location.latitude, entry.location.longitude],
             i           = 0,
             boundariesL = cfg.boundaries.length;
-
-        cfg.markers[entry.entryID].setLatLng(latLng).openPopup();
 
         // Find and replace the coordinates in the boundaries, then fit again.
         for (; i < boundariesL; i++) {
@@ -374,9 +379,33 @@ var myLittleDiary = (function(){
                 break;
             }
         };
-        cfg.boundaries.splice(i - 1, 1, latLng)
+
+        return i - 1;
+    };
+
+    /**
+     * Update a marker to match new geolocation.
+     * @param {JSON} entry Structure of an object
+     */
+    var updateMarker = function updateMarker (entry) {
+        var latLng    = [entry.location.latitude, entry.location.longitude],
+            prevBound = findBoundary(entry);
+
+        cfg.markers[entry.entryID].setLatLng(latLng).openPopup();
+
+        cfg.boundaries.splice(prevBound, 1, latLng);
         cfg.map.fitBounds(cfg.boundaries);
-    }
+    };
+
+    /**
+     * Remove a marker from the map.
+     * @param {JSON} entry Structure of an object
+     */
+    var removeMarker = function removeMarker (entry) {
+        var prevBound = findBoundary(entry);
+        cfg.boundaries.splice(prevBound, 1);
+        cfg.map.removeLayer(cfg.markers[entry.entryID]);
+    };
 
     /**
      * Create a new entry based on the form.
@@ -548,6 +577,7 @@ var myLittleDiary = (function(){
         var title = JSON.parse(localStorage.getItem(entryID)).title;
 
         removeEntryFromDOM(entryID);
+        removeMarker(getEntry(entryID));
         removeEntryFromDB(entryID);
 
         notifyUser('The post “' + title + '” was removed successfully!');
@@ -598,8 +628,8 @@ var myLittleDiary = (function(){
      * Log a list of entries in the local storage.
      */
     var listEntries = function listEntries() {
-        console.log('entries in localStorage: ', localStorage);
-        console.log('entries in getEntriesFromDB(): ', getEntriesFromDB());
+        // console.log('entries in localStorage: ', localStorage);
+        // console.log('entries in getEntriesFromDB(): ', getEntriesFromDB());
     };
 
     /**
@@ -641,7 +671,7 @@ var myLittleDiary = (function(){
      * Test if notifications are allowed and ask in case they’re not.
      */
     var testNotifications = function testNotifications() {
-        console.log('Notification.permission: ' + Notification.permission);
+        // console.log('Notification.permission: ' + Notification.permission);
 
         if('default' === Notification.permission) {
             Notification.requestPermission();
@@ -684,7 +714,7 @@ var myLittleDiary = (function(){
                 body: body
             });
 
-        console.log(body);
+        // console.log(body);
     };
 
     /**
