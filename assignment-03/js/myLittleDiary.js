@@ -57,11 +57,13 @@ var myLittleDiary = (function(){
             'localStorage'
         ],
 
-        defaultEntry: {
-            'entryID':     null,
-            'title':       null,
-            'description': null,
-            'location':    false
+        defaultEntry: function(){
+            return {
+                'entryID':     null,
+                'title':       null,
+                'description': null,
+                'location':    false
+            };
         }
     };
 
@@ -375,9 +377,6 @@ var myLittleDiary = (function(){
      * @param {JSON} entry Structure of an object
      */
     var addMarker = function addMarker (entry) {
-
-        console.log(entry);
-
         if (entry.location) {
             var marker = cfg.markers[entry.entryID] = {},
                 latLng = [entry.location.latitude, entry.location.longitude]
@@ -472,7 +471,7 @@ var myLittleDiary = (function(){
      * Notify user!
      */
     var postEntry = function postEntry() {
-        var entry = cfg.defaultEntry;
+        var entry = cfg.defaultEntry();
 
         entry.entryID     = cfg.counter + 1;
         entry.title       = $(cfg.select.ids.formTitle).val();
@@ -591,7 +590,7 @@ var myLittleDiary = (function(){
      * @param {Integer} entryID ID of the entry to edit
      */
     var editEntry = function editEntry(entryID) {
-        var entry       = cfg.defaultEntry,
+        var entry       = cfg.defaultEntry(),
             $entryDOM   = $('#' + cfg.entryIDSuf + entryID),
             useLocation = $(cfg.select.ids.formLocation + '-' + entryID).prop('checked');
 
