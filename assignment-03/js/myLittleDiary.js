@@ -1,31 +1,33 @@
 var myLittleDiary = (function(){
     var cfg = {
         debug: false,
-        selectDevActions: '#dev-actions',
-        selectDevAction:  '.action',
-        selectFeedbacks:  '#feedbacks',
-        selectFeedback:   '.feedback-entry',
-        IDFeedbacks:      'feedbacks',
-        classFeedbacks:   'feedbacks',
-        classCloseAll:    'close-all',
 
-        classCanCollapse:     'can-collapse',
-        classClickable:       'can-click',
-        classCollapseTrigger: 'collapse-trigger',
-        classState:           'open',
+        ids: {
+            feedbacks:     'feedbacks',
+            devActions:    'dev-actions',
+            formPostEntry: 'post-entry',
+            formTitle:     'title',
+            formDesc:      'description',
+            formLocation:  'location',
+            map:           'map'
+        },
 
-        selectContainers:       '.entry',
-        selectCanCollapse:      '.can-collapse',
-        selectClickable:        '.can-click',
-        selectEntriesContainer: '.entries',
-        selectCollapseToggle:   '.collapse-trigger',
-        selectCollapseToggled:  '.collapse-target',
-        selectAction:           '.action',
+        entryIDSuf: 'entry-',
 
-        selectFormPostEntry: '#post-entry',
-        selectFormTitle:     '#title',
-        selectFormDesc:      '#description',
-        selectFormLocation:  '#location',
+        classes: {
+            canCollapse:      'can-collapse',
+            canClick:         'can-click',
+            collapseTrigger:  'collapse-trigger',
+            collapseToggled:  'collapse-target',
+            state:            'open',
+            entry:            'entry',
+            entriesContainer: 'entries',
+            feedbacks:        'feedbacks',
+            feedback:         'feedback-entry',
+            closeAll:         'close-all',
+            action:           'action',
+            mapOK:            'has-content'
+        },
 
         templates:  {
             entry: {
@@ -38,11 +40,8 @@ var myLittleDiary = (function(){
                 id: 'tpl-feedback-entry'
             }
         },
-        entryIDSuf: 'entry-',
 
         map:         null,
-        selectMap:   '#map',
-        classMapOK:  'has-content',
         hasLocation: false,
         geoOptions:  {
             enableHighAccuracy: true,
@@ -65,8 +64,6 @@ var myLittleDiary = (function(){
             'location':    false
         }
     };
-
-    cfg.counter = localStorage['counter'] ? parseInt(localStorage['counter']) : 0;
 
     /**
      * Check that dependies are met.
@@ -91,13 +88,16 @@ var myLittleDiary = (function(){
      * Launch basic setup for the application.
      */
     var init = function init(){
-        var $containers = $(cfg.selectCanCollapse);
+        cfg.counter = localStorage['counter'] ? parseInt(localStorage['counter']) : 0;
+        cfg.select  = createSelectors();
 
         // Collapse all contents.
         // Show the user they can click on titles.
         // Set default heights.
         // Toggle classes and compute heights on click.
         $(document).ready(function(){
+            var $containers = $(cfg.select.classes.canCollapse);
+
             // Register templates.
             $.each(cfg.templates, function(tpl){
                 jsviews.templates(cfg.templates[tpl].id, $('#' + cfg.templates[tpl].id).html());
@@ -106,8 +106,8 @@ var myLittleDiary = (function(){
             // Add the feedback box;
             $('body').prepend(
                 $('<div/>', {
-                    id:    cfg.IDFeedbacks,
-                    class: cfg.classFeedbacks
+                    id:    cfg.ids.feedbacks,
+                    class: cfg.classes.feedbacks
                 })
             );
 
@@ -125,29 +125,32 @@ var myLittleDiary = (function(){
             });
 
             // Handle collapsable items.
-            $(cfg.selectEntriesContainer).on('click', cfg.selectCollapseToggle, function(){
-                var $collapsable = $(this).closest(cfg.selectCanCollapse);
-                $collapsable.toggleClass(cfg.classState);
+            $(cfg.select.classes.entriesContainer).on('click', cfg.select.classes.collapseTrigger, function(){
+                var $collapsable = $(this).closest(cfg.select.classes.canCollapse);
+                $collapsable.toggleClass(cfg.classes.state);
                 setHeight($collapsable);
-                panTo(getEntry($collapsable.attr('id').replace(cfg.entryIDSuf, '')));
+
+                if ($collapsable.hasClass(cfg.classes.entry)) {
+                    panTo(getEntry($collapsable.attr('id').replace(cfg.entryIDSuf, '')));
+                }
             });
 
             // Handle actions on entries.
-            $(cfg.selectEntriesContainer).on('click', cfg.selectAction, function(event){
+            $(cfg.select.classes.entriesContainer).on('click', cfg.select.classes.action, function(event){
                 event.preventDefault();
 
                 handleActions(this);
             });
 
             // Handle feedbacks and related actions.
-            $(cfg.selectFeedbacks).on('click', cfg.selectClickable, function(){
+            $(cfg.select.ids.feedbacks).on('click', cfg.select.classes.canClick, function(){
                 myLittleDiary[$(this).data('action')]($(this));
             });
 
             // Handle dev tools and related actions.
             if (cfg.debug) {
                 $('html').addClass('debug');
-                $(cfg.selectDevActions).on('click', cfg.selectDevAction, function(){
+                $(cfg.select.ids.devActions).on('click', cfg.select.classes.action, function(){
                     myLittleDiary[$(this).data('action')]();
                 });
             };
@@ -159,7 +162,7 @@ var myLittleDiary = (function(){
             displayLocalEntries();
 
             // Draw map with markers.
-            placeMarkers(drawMap(cfg.selectEntriesContainer));
+            placeMarkers(drawMap(cfg.select.classes.entriesContainer));
 
             // Update maps if necessary
             cfg.map.on('layerremove', function(e) {
@@ -173,15 +176,31 @@ var myLittleDiary = (function(){
          * Check if some entries were added dynamicaly
          * @param {object} data jQuery objects to operate on.
          */
-        $(cfg.selectEntriesContainer).on('entryAdded', function(event, data){
+        $(cfg.select.classes.entriesContainer).on('entryAdded', function(event, data){
             showClickable(data.objects);
             setHeight(data.objects);
         });
 
-        $(cfg.selectFormPostEntry).on('submit click', function(event){
+        $(cfg.select.ids.formPostEntry).on('submit click', function(event){
             event.preventDefault();
             postEntry();
         });
+    };
+
+    /**
+     * Create selectors based on classes and ids defined in cfg.
+     */
+    var createSelectors = function createSelectors() {
+        selectors = {ids: {}, classes: {} };
+
+        $.each(cfg.ids, function(key, value){
+            selectors['ids'][key] = '#' + value;
+        });
+        $.each(cfg.classes, function(key, value){
+            selectors['classes'][key] = '.' + value;
+        });
+
+        return selectors;
     };
 
     /**
@@ -317,7 +336,7 @@ var myLittleDiary = (function(){
         // Let CSS know it can style the map if leaflet is here.
         try {
             L.version;
-            $(cfg.selectMap).addClass(cfg.classMapOK);
+            $(cfg.select.ids.map).addClass(cfg.classes.mapOK);
         } catch (e) {
             throw(e.message);
         }
@@ -360,10 +379,12 @@ var myLittleDiary = (function(){
      * @param {JSON} entry Structure of an object
      */
     var panTo = function panTo(entry) {
-        var latLng = [entry.location.latitude, entry.location.longitude];
+        if (cfg.markers[entry.entryID]) {
+            var latLng = [entry.location.latitude, entry.location.longitude];
 
-        cfg.markers[entry.entryID].openPopup();
-        cfg.map.panTo(latLng);
+            cfg.markers[entry.entryID].openPopup();
+            cfg.map.panTo(latLng);
+        }
     };
 
     /**
@@ -405,13 +426,14 @@ var myLittleDiary = (function(){
      * @param {JSON} entry Structure of an object
      */
     var updateMarker = function updateMarker (entry) {
-        var latLng    = [entry.location.latitude, entry.location.longitude],
-            prevBound = findBoundary(entry);
+        var latLng    = [entry.location.latitude, entry.location.longitude];
 
-        cfg.markers[entry.entryID].setLatLng(latLng).openPopup();
+        if (cfg.markers[entry.entryID]) {
+            cfg.markers[entry.entryID].setLatLng(latLng).openPopup();
 
-        cfg.boundaries.splice(prevBound, 1, latLng);
-        cfg.map.fitBounds(cfg.boundaries);
+            cfg.boundaries.splice(findBoundary(entry), 1, latLng);
+            cfg.map.fitBounds(cfg.boundaries);
+        }
     };
 
     /**
@@ -434,10 +456,10 @@ var myLittleDiary = (function(){
         var entry = cfg.defaultEntry;
 
         entry.entryID     = cfg.counter + 1;
-        entry.title       = $(cfg.selectFormTitle).val();
-        entry.description = $(cfg.selectFormDesc).val();
+        entry.title       = $(cfg.select.ids.formTitle).val();
+        entry.description = $(cfg.select.ids.formDesc).val();
 
-        useLocation = $(cfg.selectFormLocation).prop('checked');
+        useLocation = $(cfg.select.ids.formLocation).prop('checked');
 
         if (!entry.title || !entry.description) {
             return;
@@ -475,7 +497,7 @@ var myLittleDiary = (function(){
         }
 
         // Add all objects to DOM, and let event listener know we added specific entries.
-        $(cfg.selectEntriesContainer)
+        $(cfg.select.classes.entriesContainer)
             .prepend(output.reverse())
             .trigger('entryAdded', [{
                 objects: $(objectsId.join(', '))
@@ -510,7 +532,7 @@ var myLittleDiary = (function(){
      * @param  {Event} target Target of the current event
      */
     var handleActions = function handleActions(target) {
-        var $collapsable = $(target).closest(cfg.selectCanCollapse),
+        var $collapsable = $(target).closest(cfg.select.classes.canCollapse),
             $entryID = $collapsable.attr('id').replace(cfg.entryIDSuf, ''),
             action   = $(target).data('action');
 
@@ -520,14 +542,14 @@ var myLittleDiary = (function(){
                 break;
             case 'edit':
                 showEditForm($entryID);
-                $collapsable.find(cfg.selectCollapseToggle).removeClass(cfg.classCollapseTrigger);
+                $collapsable.find(cfg.select.classes.collapseTrigger).removeClass(cfg.classes.collapseTrigger);
                 break;
             case 'submit':
                 $collapsable = editEntry($entryID);
                 showClickable($collapsable)
-                    .addClass(cfg.classState)
-                    .find(cfg.selectCollapseToggle)
-                        .addClass(cfg.classCollapseTrigger);
+                    .addClass(cfg.classes.state)
+                    .find(cfg.select.classes.collapseTrigger)
+                        .addClass(cfg.classes.collapseTrigger);
                 break;
         }
     };
@@ -554,11 +576,11 @@ var myLittleDiary = (function(){
     var editEntry = function editEntry(entryID) {
         var entry       = cfg.defaultEntry,
             $entryDOM   = $('#' + cfg.entryIDSuf + entryID),
-            useLocation = $(cfg.selectFormLocation + '-' + entryID).prop('checked');
+            useLocation = $(cfg.select.ids.formLocation + '-' + entryID).prop('checked');
 
         entry.entryID     = entryID;
-        entry.title       = $(cfg.selectFormTitle + '-' + entryID).val();
-        entry.description = $(cfg.selectFormDesc + '-' + entryID).val();
+        entry.title       = $(cfg.select.ids.formTitle + '-' + entryID).val();
+        entry.description = $(cfg.select.ids.formDesc + '-' + entryID).val();
         entry.location    = getEntry(entryID).location;
 
         if (!entry.title || !entry.description) {
@@ -654,7 +676,7 @@ var myLittleDiary = (function(){
      */
     var clearLocalStorage = function clearLocalStorage() {
         localStorage.clear();
-        $(cfg.selectContainers).remove();
+        $(cfg.select.classes.entry).remove();
         cfg.counter = 0;
         notifyUser('local storage cleared');
     };
@@ -664,7 +686,7 @@ var myLittleDiary = (function(){
      * @param {jQuery} $objects Containers following the template for entries.
      */
     var showClickable = function showClickable($objects) {
-        $objects.find(cfg.selectCollapseToggle).addClass(cfg.classClickable);
+        $objects.find(cfg.select.classes.collapseTrigger).addClass(cfg.classes.canClick);
 
         return $objects;
     };
@@ -674,10 +696,10 @@ var myLittleDiary = (function(){
      * @param {jQuery} $container Object representing DOM elements.
      */
     var setHeight = function setHeight($container) {
-        var headerH  = $container.find(cfg.selectCollapseToggle).outerHeight(true),
-            contentH = $container.find(cfg.selectCollapseToggled).outerHeight(true);
+        var headerH  = $container.find(cfg.select.classes.collapseTrigger).outerHeight(true),
+            contentH = $container.find(cfg.select.classes.collapseToggled).outerHeight(true);
 
-        if($container.hasClass(cfg.classState)) {
+        if($container.hasClass(cfg.classes.state)) {
             $container.height(headerH + contentH + 'px');
         } else {
             $container.height(headerH + 'px');
@@ -709,12 +731,12 @@ var myLittleDiary = (function(){
                                    'type': type,
                                    'msg': msg
                                }),
-            $feedbacks = $('#' + cfg.IDFeedbacks);
+            $feedbacks = $('#' + cfg.ids.feedbacks);
 
         if(!$feedbacks.children().length) {
             $feedbacks.prepend(
                 $('<a/>', {
-                    class:         cfg.classCloseAll + ' ' + cfg.classClickable,
+                    class:         cfg.classes.closeAll + ' ' + cfg.classes.canClick,
                     title:         'Close all notifications.',
                     text:          '×',
                     'data-action': 'closeFeedbacks'
@@ -732,7 +754,7 @@ var myLittleDiary = (function(){
     var closeFeedback = function closeFeedback(feedback) {
         var $feedback = $(feedback);
 
-        if(0 === $feedback.siblings(cfg.selectFeedback).length){
+        if(0 === $feedback.siblings(cfg.select.classes.feedback).length){
             closeFeedbacks();
         } else {
             $feedback.remove();
@@ -743,7 +765,7 @@ var myLittleDiary = (function(){
      * Close all feedbacks.
      */
     var closeFeedbacks = function closeFeedbacks() {
-        $('#' + cfg.IDFeedbacks).empty();
+        $('#' + cfg.ids.feedbacks).empty();
     };
 
     /**
