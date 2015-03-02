@@ -3,6 +3,11 @@ var myLittleDiary = (function(){
         debug: false,
         selectDevActions: '#dev-actions',
         selectDevAction:  '.action',
+        selectFeedbacks:  '#feedbacks',
+        selectFeedback:   '.feedback-entry',
+        IDFeedbacks:      'feedbacks',
+        classFeedbacks:   'feedbacks',
+        classCloseAll:    'close-all',
 
         classCanCollapse:     'can-collapse',
         classClickable:       'can-click',
@@ -11,6 +16,7 @@ var myLittleDiary = (function(){
 
         selectContainers:       '.entry',
         selectCanCollapse:      '.can-collapse',
+        selectClickable:        '.can-click',
         selectEntriesContainer: '.entries',
         selectCollapseToggle:   '.collapse-trigger',
         selectCollapseToggled:  '.collapse-target',
@@ -27,6 +33,9 @@ var myLittleDiary = (function(){
             },
             editEntry: {
                 id: 'tpl-edit-entry'
+            },
+            feedbackEntry: {
+                id: 'tpl-feedback-entry'
             }
         },
         entryIDSuf: 'entry-',
@@ -82,29 +91,37 @@ var myLittleDiary = (function(){
      * Launch basic setup for the application.
      */
     var init = function init(){
-        // Stop script if a depency is missing.
-        if(!testDependencies()) {
-            return ('Oooopsie! Some dependencies are missing!');
-        }
-
         var $containers = $(cfg.selectCanCollapse);
-
-        // Reset heights when the window is resized or the orientation changes.
-        $(window).on('resize', function(){
-            $containers.each(function(){
-                setHeight($(this));
-            });
-        });
 
         // Collapse all contents.
         // Show the user they can click on titles.
         // Set default heights.
         // Toggle classes and compute heights on click.
         $(document).ready(function(){
+            // Register templates.
+            $.each(cfg.templates, function(tpl){
+                jsviews.templates(cfg.templates[tpl].id, $('#' + cfg.templates[tpl].id).html());
+            });
+
+            // Add the feedback box;
+            $('body').prepend(
+                $('<div/>', {
+                    id:    cfg.IDFeedbacks,
+                    class: cfg.classFeedbacks
+                })
+            );
+
             // Collapse collapsable items.
             $containers.each(function(){
                 showClickable($(this));
                 setHeight($(this));
+            });
+
+            // Reset heights when the window is resized or the orientation changes.
+            $(window).on('resize', function(){
+                $containers.each(function(){
+                    setHeight($(this));
+                });
             });
 
             // Handle collapsable items.
@@ -122,21 +139,21 @@ var myLittleDiary = (function(){
                 handleActions(this);
             });
 
+            // Handle feedbacks and related actions.
+            $(cfg.selectFeedbacks).on('click', cfg.selectClickable, function(){
+                myLittleDiary[$(this).data('action')]($(this));
+            });
+
             // Handle dev tools and related actions.
             if (cfg.debug) {
                 $('html').addClass('debug');
+                $(cfg.selectDevActions).on('click', cfg.selectDevAction, function(){
+                    myLittleDiary[$(this).data('action')]();
+                });
             };
-            $(cfg.selectDevActions).on('click', cfg.selectDevAction, function(){
-                myLittleDiary[$(this).data('action')]();
-            });
 
             // Test status for notifications.
-            testNotifications();
-
-            // Register templates.
-            $.each(cfg.templates, function(tpl){
-                jsviews.templates(cfg.templates[tpl].id, $('#' + cfg.templates[tpl].id).html());
-            });
+            requestNotificationPermission();
 
             // Display entries in localStorage.
             displayLocalEntries();
@@ -169,12 +186,12 @@ var myLittleDiary = (function(){
 
     /**
      * Populate a template with sone Data
-     * @param  {String} tpl   ID selector for the template.
-     * @param  {JSON}   entry Data to be passed to the template.
-     * @return {jQuery}       Rendered templates as a jQuery object.
+     * @param  {String} tpl  ID selector for the template.
+     * @param  {JSON}   data Data to be passed to the template.
+     * @return {jQuery}      Rendered templates as a jQuery object.
      */
-    var templatize = function templatize(tpl, entry) {
-        var output = jsviews.render[tpl](entry);
+    var templatize = function templatize(tpl, data) {
+        var output = jsviews.render[tpl](data);
 
         return output;
     };
@@ -279,12 +296,12 @@ var myLittleDiary = (function(){
 
         return getLocation()
             .progress(function(answer){
-                // console.log(answer.msg);
+                giveFeedback(answer.msg, 'info');
             })
             .done(function(answer){
                 entry.location = answer.location;
                 storeEntry(entry, entryID);
-                console.info('The location for “' + entry.title + '” has been updated.');
+                giveFeedback('The location for “' + entry.title + '” has been updated.', 'info');
             })
             .fail(function(answer){
                 notifyUser('Your location could not be updated: ' + answer.msg);
@@ -522,7 +539,7 @@ var myLittleDiary = (function(){
     var showEditForm = function showEditForm(entryID) {
         var $entryDOM = $('#' + cfg.entryIDSuf + entryID),
             form      = templatize(
-                cfg.templates['editEntry'].id, 
+                cfg.templates['editEntry'].id,
                 JSON.parse(localStorage.getItem(entryID))
             );
 
@@ -628,8 +645,8 @@ var myLittleDiary = (function(){
      * Log a list of entries in the local storage.
      */
     var listEntries = function listEntries() {
-        // console.log('entries in localStorage: ', localStorage);
-        // console.log('entries in getEntriesFromDB(): ', getEntriesFromDB());
+        console.log('entries in localStorage: ', localStorage);
+        console.log('entries in getEntriesFromDB(): ', getEntriesFromDB());
     };
 
     /**
@@ -670,12 +687,63 @@ var myLittleDiary = (function(){
     /**
      * Test if notifications are allowed and ask in case they’re not.
      */
-    var testNotifications = function testNotifications() {
-        // console.log('Notification.permission: ' + Notification.permission);
+    var requestNotificationPermission = function requestNotificationPermission() {
+        if(window.Notification) {
+            giveFeedback('Notification.permission: ' + Notification.permission, 'info');
 
-        if('default' === Notification.permission) {
-            Notification.requestPermission();
+            if('default' === Notification.permission) {
+                Notification.requestPermission();
+            }
         }
+    };
+
+    /**
+     * Inform the user about what’s been done. This is an alternative to browser notifications if
+     *     they are not available or allowed.
+     * @param  {String} msg  The content of the feedback.
+     * @param  {String} type The type of feeback we supply: error, info or warning.
+     */
+    var giveFeedback = function giveFeedback(msg, type) {
+        var entry = templatize(cfg.templates['feedbackEntry'].id,
+                               {
+                                   'type': type,
+                                   'msg': msg
+                               }),
+            $feedbacks = $('#' + cfg.IDFeedbacks);
+
+        if(!$feedbacks.children().length) {
+            $feedbacks.prepend(
+                $('<a/>', {
+                    class:         cfg.classCloseAll + ' ' + cfg.classClickable,
+                    title:         'Close all notifications.',
+                    text:          '×',
+                    'data-action': 'closeFeedbacks'
+                })
+            );
+        }
+
+        $feedbacks.prepend(entry);
+    };
+
+    /**
+     * Close a specific feedback.
+     * @param  {DOM} feedback Element targetted.
+     */
+    var closeFeedback = function closeFeedback(feedback) {
+        var $feedback = $(feedback);
+
+        if(0 === $feedback.siblings(cfg.selectFeedback).length){
+            closeFeedbacks();
+        } else {
+            $feedback.remove();
+        }
+    };
+
+    /**
+     * Close all feedbacks.
+     */
+    var closeFeedbacks = function closeFeedbacks() {
+        $('#' + cfg.IDFeedbacks).empty();
     };
 
     /**
@@ -688,10 +756,12 @@ var myLittleDiary = (function(){
     var notifyUser = function notifyUser(body) {
         var argumentsL = arguments.length,
             icon       = "img/dialog-information.svg",
-            title      = 'Good!';
+            title      = 'Good!',
+            type       = 'default';
 
         if(2 === argumentsL) {
-            switch(arguments[1]) {
+            type = arguments[1];
+            switch(type) {
                 case 'error':
                     icon  = "img/dialog-error.svg";
                     title = 'Oopsie…';
@@ -707,14 +777,18 @@ var myLittleDiary = (function(){
             title = arguments[2];
         }
 
-        var notification = new Notification(
-            title,
-            { 
-                icon: icon,
-                body: body
-            });
+        if(window.Notification) {
+            var notification = new Notification(
+                title,
+                { 
+                    icon: icon,
+                    body: body
+                });
+        }
 
-        // console.log(body);
+        if(!Notification.permission || true === cfg.debug) {
+            giveFeedback(body, type, title);
+        }
     };
 
     /**
@@ -774,15 +848,21 @@ var myLittleDiary = (function(){
 // -------------------------------------------------------------------------------------------------
 // public variables
 // -------------------------------------------------------------------------------------------------
+    // Stop script if a depency is missing.
+    if(!testDependencies()) {
+        return ('Oooopsie! Some dependencies are missing!');
+    }
+
     // Initialize the layout and logic on the page.
     init();
 
     // Make some values public.
     return {
         cfg: cfg,
-        init: init,
         listEntries: listEntries,
         populate: populate,
-        clearLocalStorage: clearLocalStorage
+        clearLocalStorage: clearLocalStorage,
+        closeFeedback: closeFeedback,
+        closeFeedbacks: closeFeedbacks
     };
 })();

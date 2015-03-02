@@ -117,11 +117,60 @@
       /* map */
 
       #map.has-content {
+        z-index: 0;
         height: 300px;
       }
 
       .entry-location {
         display: none;
+      }
+
+      /* debug */
+
+      #feedbacks {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 3em;
+        z-index: 1;
+        padding-left: .5em;
+        border-left: dotted 2px #999;
+      }
+
+      .feedback-entry {
+        padding: .5em 1em;
+        font-weight: bold;
+        background-color: #dfefe1;
+      }
+
+      .feedback-entry + .feedback-entry {
+        margin-top: .5em;
+      }
+
+      .feedback-error {
+        background-color: #ffcfcf;
+      }
+
+      .feedback-info {
+        background-color: #cfdeff;
+      }
+
+      .feedback-warning {
+        background-color: #ffffcf;
+      }
+
+      .close-all {
+        position: absolute;
+        top: 0;
+        right: 100%;
+        padding: 0.5rem 0.75rem;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #999;
+      }
+
+      .close-all:hover {
+        color: #000;
       }
 
       /* debug */
@@ -138,6 +187,15 @@
 
       .debug #dev-actions {
         display: block;
+      }
+
+      @media all and (min-width:35em){
+        #dev-debug {
+          position: fixed;
+          top: 0;
+          right: 80%;
+          left: 0;
+        }
       }
     </style>
   </head>
@@ -219,6 +277,12 @@
           </div>
         </div>
       </form>
+    </script>
+
+    <script id="tpl-feedback-entry" type="text/x-jsrender">
+      <div class="feedback-entry feedback-{{:type}} can-click" data-action="closeFeedback">
+        {{:msg}}
+      </div>
     </script>
 
     <script>
