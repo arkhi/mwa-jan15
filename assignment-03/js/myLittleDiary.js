@@ -48,7 +48,7 @@ var myLittleDiary = (function(){
             maximumAge : 30000,
             timeout : 27000
         },
-        markers: [],
+        markers: {},
         boundaries: [],
 
         dependencies: [
@@ -131,7 +131,7 @@ var myLittleDiary = (function(){
                 setHeight($collapsable);
 
                 if ($collapsable.hasClass(cfg.classes.entry)) {
-                    panTo(getEntry($collapsable.attr('id').replace(cfg.entryIDSuf, '')));
+                    panToMarker(getEntry($collapsable.attr('id').replace(cfg.entryIDSuf, '')));
                 }
             });
 
@@ -163,13 +163,6 @@ var myLittleDiary = (function(){
 
             // Draw map with markers.
             placeMarkers(drawMap(cfg.select.classes.entriesContainer));
-
-            // Update maps if necessary
-            cfg.map.on('layerremove', function(e) {
-                if (0 < cfg.boundaries.length) {
-                    cfg.map.fitBounds(cfg.boundaries);
-                }
-            });
         });
 
         /**
@@ -204,7 +197,7 @@ var myLittleDiary = (function(){
     };
 
     /**
-     * Populate a template with sone Data
+     * Populate a template with some data
      * @param  {String} tpl  ID selector for the template.
      * @param  {JSON}   data Data to be passed to the template.
      * @return {jQuery}      Rendered templates as a jQuery object.
@@ -287,7 +280,7 @@ var myLittleDiary = (function(){
                     break;
             }
 
-            checking.resolve({
+            checking.reject({
                 msg: errorMsg,
                 location: false
             });
@@ -319,11 +312,14 @@ var myLittleDiary = (function(){
             })
             .done(function(answer){
                 entry.location = answer.location;
-                storeEntry(entry, entryID);
+                addEntryToDB(entry, entryID);
+
+                updateMarker(entry);
+
                 giveFeedback('The location for “' + entry.title + '” has been updated.', 'info');
             })
             .fail(function(answer){
-                notifyUser('Your location could not be updated: ' + answer.msg);
+                notifyUser('Your location was not updated for the following reason: ' + answer.msg);
             });
     };
 
@@ -375,50 +371,24 @@ var myLittleDiary = (function(){
     };
 
     /**
-     * Pan to a marker symbolizing an entry.
-     * @param {JSON} entry Structure of an object
-     */
-    var panTo = function panTo(entry) {
-        if (cfg.markers[entry.entryID]) {
-            var latLng = [entry.location.latitude, entry.location.longitude];
-
-            cfg.markers[entry.entryID].openPopup();
-            cfg.map.panTo(latLng);
-        }
-    };
-
-    /**
      * Add a marker for a newly created entry.
      * @param {JSON} entry Structure of an object
      */
     var addMarker = function addMarker (entry) {
-        var latLng = [entry.location.latitude, entry.location.longitude];
 
-        cfg.markers[entry.entryID] = L.marker(latLng).addTo(cfg.map);
-        cfg.markers[entry.entryID].bindPopup('<b>' + entry.title + '</b>').openPopup();
-        cfg.boundaries.push(latLng);
-        cfg.map.fitBounds(cfg.boundaries);
-    };
+        console.log(entry);
 
-    /**
-     * Find the index of the matching marker in the boundaries (for update or removal).
-     * @param {JSON}     entry Structure of an object
-     * @return {Integer}       The position of the matching coordinates in the array
-     */
-    var findBoundary = function findBoundary(entry) {
-        var prevCoords  = cfg.markers[entry.entryID].getLatLng(),
-            prevLatLng  = prevCoords.lat + ',' + prevCoords.lng,
-            i           = 0,
-            boundariesL = cfg.boundaries.length;
+        if (entry.location) {
+            var marker = cfg.markers[entry.entryID] = {},
+                latLng = [entry.location.latitude, entry.location.longitude]
 
-        // Find and replace the coordinates in the boundaries, then fit again.
-        for (; i < boundariesL; i++) {
-            if (prevLatLng === cfg.boundaries[i].join(',')) {
-                break;
-            }
-        };
+            marker.layer = L.marker(latLng).addTo(cfg.map);
+            marker.popup = marker.layer.bindPopup('<b>' + entry.title + '</b>');
 
-        return i - 1;
+            cfg.boundaries.push(latLng);
+            fitBoundaries();
+            marker.popup.openPopup();
+        }
     };
 
     /**
@@ -426,13 +396,14 @@ var myLittleDiary = (function(){
      * @param {JSON} entry Structure of an object
      */
     var updateMarker = function updateMarker (entry) {
-        var latLng    = [entry.location.latitude, entry.location.longitude];
-
         if (cfg.markers[entry.entryID]) {
-            cfg.markers[entry.entryID].setLatLng(latLng).openPopup();
+            var latLng = [entry.location.latitude, entry.location.longitude];
+            cfg.markers[entry.entryID].layer.setLatLng(latLng).openPopup();
 
-            cfg.boundaries.splice(findBoundary(entry), 1, latLng);
-            cfg.map.fitBounds(cfg.boundaries);
+            cfg.boundaries.splice(findInBoundaries(entry), 1, latLng);
+            fitBoundaries();
+        } else {
+            addMarker(entry);
         }
     };
 
@@ -441,9 +412,57 @@ var myLittleDiary = (function(){
      * @param {JSON} entry Structure of an object
      */
     var removeMarker = function removeMarker (entry) {
-        var prevBound = findBoundary(entry);
-        cfg.boundaries.splice(prevBound, 1);
-        cfg.map.removeLayer(cfg.markers[entry.entryID]);
+        if (cfg.markers[entry.entryID]) {
+            var prevBound = findInBoundaries(entry);
+            cfg.boundaries.splice(prevBound, 1);
+            cfg.map.removeLayer(cfg.markers[entry.entryID].layer);
+            fitBoundaries();
+        }
+    };
+
+    /**
+     * Pan to a marker symbolizing an entry.
+     * @param {JSON} entry Structure of an object
+     */
+    var panToMarker = function panToMarker(entry) {
+        if (cfg.markers[entry.entryID]) {
+            var latLng = [entry.location.latitude, entry.location.longitude];
+
+            cfg.markers[entry.entryID].popup.openPopup();
+            cfg.map.panTo(latLng);
+        }
+    };
+
+    /**
+     * Find the index of the matching marker in the boundaries (for update or removal).
+     * @param {JSON}     entry Structure of an object
+     * @return {Integer}       The position of the matching coordinates in the array
+     */
+    var findInBoundaries = function findInBoundaries(entry) {
+        if (cfg.markers[entry.entryID]) {
+            var prevCoords  = cfg.markers[entry.entryID].layer.getLatLng(),
+                prevLatLng  = prevCoords.lat + ',' + prevCoords.lng,
+                i           = 0,
+                boundariesL = cfg.boundaries.length;
+
+            // Find and replace the coordinates in the boundaries, then fit again.
+            for (; i < boundariesL; i++) {
+                if (prevLatLng === cfg.boundaries[i].join(',')) {
+                    break;
+                }
+            };
+
+            return i - 1;
+        }
+    };
+
+    /**
+     * Fit the view so that all markers are visible.
+     */
+    var fitBoundaries = function fitBoundaries() {
+        if(0 < cfg.boundaries.length) {
+            cfg.map.fitBounds(cfg.boundaries);
+        }
     };
 
     /**
@@ -466,14 +485,12 @@ var myLittleDiary = (function(){
         };
 
         addEntryToDOM([entry]);
-        storeEntry(entry);
+        addEntryToDB(entry);
+        addMarker(entry);
         notifyUser('Your entry was posted successfully!');
 
         if (true === useLocation) {
-            updateLocation(entry.entryID).done(function(){
-                addMarker(entry);
-                panTo(entry);
-            });
+            updateLocation(entry.entryID);
         }
     };
 
@@ -510,7 +527,7 @@ var myLittleDiary = (function(){
      *
      * @param {Integer}     Optional entry ID
      */
-    var storeEntry = function storeEntry(data) {
+    var addEntryToDB = function addEntryToDB(data) {
         var entryID = cfg.counter + 1;
 
         if(1 < arguments.length) {
@@ -588,10 +605,7 @@ var myLittleDiary = (function(){
         };
 
         if (true === useLocation) {
-            updateLocation(entryID).done(function(){
-                updateMarker(entry);
-                panTo(entry);
-            });
+            updateLocation(entryID);
         }
 
         var $output = $(templatize(
@@ -599,7 +613,7 @@ var myLittleDiary = (function(){
             entry
         ));
 
-        storeEntry(entry, entryID);
+        addEntryToDB(entry, entryID);
         $entryDOM.replaceWith($output);
         notifyUser('Your entry was updated successfully!');
 
@@ -675,9 +689,12 @@ var myLittleDiary = (function(){
      * Clear all content from localStorage.
      */
     var clearLocalStorage = function clearLocalStorage() {
-        localStorage.clear();
         $(cfg.select.classes.entry).remove();
+        $.each(getEntriesFromDB(), function(i, entry){
+            removeMarker(entry);
+        });
         cfg.counter = 0;
+        localStorage.clear();
         notifyUser('local storage cleared');
     };
 
@@ -829,10 +846,10 @@ var myLittleDiary = (function(){
                                          + '  [rince and repeat…]\n'
                                          + '}]</pre></code>',
                 'location':    {
-                    "latitude":30,
-                    "longitude":120,
-                    "altitude":20,
-                    "accuracy":30
+                    "latitude":  30,
+                    "longitude": 120,
+                    "altitude":  20,
+                    "accuracy":  30
                 }
             },
             {
@@ -840,10 +857,10 @@ var myLittleDiary = (function(){
                 'title':       'One more tiiiiime!',
                 'description': 'Pour faiiiire un succès de laaaaarmes !',
                 'location':    {
-                    "latitude":35,
-                    "longitude":125,
-                    "altitude":0,
-                    "accuracy":53
+                    "latitude":  35,
+                    "longitude": 125,
+                    "altitude":  0,
+                    "accuracy":  53
                 }
             },
             {
@@ -851,19 +868,21 @@ var myLittleDiary = (function(){
                 'title':       'Le poinçonneur des Lilas',
                 'description': 'Des p’tits trous, des p’tits trous ! Toujours des p’tits trous…',
                 'location':    {
-                    "latitude":35,
-                    "longitude":130,
-                    "altitude":60,
-                    "accuracy":10
+                    "latitude":  35,
+                    "longitude": 130,
+                    "altitude":  60,
+                    "accuracy":  10
                 }
             },
         ];
 
         $.each(dummyEntries, function(i, entry){
-            storeEntry(entry);
+            addEntryToDB(entry);
+            addMarker(entry);
         });
 
         addEntryToDOM(dummyEntries);
+
         notifyUser('Dummy entries were added!');
     }
 
