@@ -24,6 +24,7 @@ var myLittleDiary = (function(){
             entriesContainer: 'entries',
             feedbacks:        'feedbacks',
             feedback:         'feedback-entry',
+            mainToggler:      'toggle-all',
             closeAll:         'close-all',
             action:           'action',
             mapOK:            'has-content'
@@ -135,6 +136,17 @@ var myLittleDiary = (function(){
                 if ($collapsable.hasClass(cfg.classes.entry)) {
                     panToMarker(getEntry($collapsable.attr('id').replace(cfg.entryIDSuf, '')));
                 }
+            });
+
+            // Collapse all!
+            $(cfg.select.classes.mainToggler)
+                .addClass(cfg.classes.canClick)
+                .on('click', function(){
+                    $(cfg.select.classes.canCollapse)
+                        .removeClass(cfg.classes.state)
+                        .each(function(){
+                            setHeight($(this))
+                        });
             });
 
             // Handle actions on entries.
@@ -321,7 +333,7 @@ var myLittleDiary = (function(){
                 giveFeedback('The location for “' + entry.title + '” has been updated.', 'info');
             })
             .fail(function(answer){
-                notifyUser('Your location was not updated for the following reason: ' + answer.msg);
+                giveFeedback('Your location was not updated for the following reason: ' + answer.msg);
             });
     };
 
@@ -720,6 +732,8 @@ var myLittleDiary = (function(){
         } else {
             $container.height(headerH + 'px');
         }
+
+        return $container;
     };
 
     /**
@@ -727,7 +741,7 @@ var myLittleDiary = (function(){
      */
     var requestNotificationPermission = function requestNotificationPermission() {
         if(window.Notification) {
-            giveFeedback('Notification.permission: ' + Notification.permission, 'info');
+            // giveFeedback('Notification.permission: ' + Notification.permission, 'info');
 
             if('default' === Notification.permission) {
                 Notification.requestPermission();
