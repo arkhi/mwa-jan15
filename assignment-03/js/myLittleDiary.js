@@ -394,11 +394,13 @@ var myLittleDiary = (function(){
                 latLng = [entry.location.latitude, entry.location.longitude]
 
             marker.layer = L.marker(latLng).addTo(cfg.map);
-            marker.popup = marker.layer.bindPopup('<b>' + entry.title + '</b>');
+            marker.popup = L.popup().setContent('<b>' + entry.title + '</b>');
+
+            marker.layer.bindPopup(marker.popup);
 
             cfg.boundaries.push(latLng);
             fitBoundaries();
-            marker.popup.openPopup();
+            marker.layer.openPopup();
         }
     };
 
@@ -407,9 +409,14 @@ var myLittleDiary = (function(){
      * @param {JSON} entry Structure of an object
      */
     var updateMarker = function updateMarker (entry) {
-        if (cfg.markers[entry.entryID]) {
+        marker = cfg.markers[entry.entryID];
+
+        if (marker) {
             var latLng = [entry.location.latitude, entry.location.longitude];
-            cfg.markers[entry.entryID].layer.setLatLng(latLng).openPopup();
+            marker.layer.setLatLng(latLng);
+
+            marker.popup.setContent('<b>' + entry.title + '</b>');
+            marker.layer.openPopup();
 
             cfg.boundaries.splice(findInBoundaries(entry), 1, latLng);
             fitBoundaries();
@@ -439,7 +446,7 @@ var myLittleDiary = (function(){
         if (cfg.markers[entry.entryID]) {
             var latLng = [entry.location.latitude, entry.location.longitude];
 
-            cfg.markers[entry.entryID].popup.openPopup();
+            cfg.markers[entry.entryID].layer.openPopup();
             cfg.map.panTo(latLng);
         }
     };
@@ -602,9 +609,9 @@ var myLittleDiary = (function(){
      * @param {Integer} entryID ID of the entry to edit
      */
     var editEntry = function editEntry(entryID) {
-        var entry       = cfg.defaultEntry(),
-            $entryDOM   = $('#' + cfg.entryIDSuf + entryID),
-            useLocation = $(cfg.select.ids.formLocation + '-' + entryID).prop('checked');
+        var entry     = cfg.defaultEntry(),
+            $entryDOM = $('#' + cfg.entryIDSuf + entryID),
+            useNewLoc = $(cfg.select.ids.formLocation + '-' + entryID).prop('checked');
 
         entry.entryID     = entryID;
         entry.title       = $(cfg.select.ids.formTitle + '-' + entryID).val();
@@ -615,7 +622,7 @@ var myLittleDiary = (function(){
             return;
         };
 
-        if (true === useLocation) {
+        if (true === useNewLoc) {
             updateLocation(entryID);
         }
 
@@ -625,6 +632,8 @@ var myLittleDiary = (function(){
         ));
 
         addEntryToDB(entry, entryID);
+        updateMarker(entry);
+        panToMarker(entry);
         $entryDOM.replaceWith($output);
         notifyUser('Your entry was updated successfully!');
 
