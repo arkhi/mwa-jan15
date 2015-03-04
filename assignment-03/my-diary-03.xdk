@@ -3,10 +3,10 @@
     "projectSettingsVersion": "1.2",
     "creationData": {
       "type": "Import",
-      "projectTypeName": "com.intel.xdk.projecttype.webapp",
+      "projectTypeName": "com.intel.xdk.projecttype.jsapp",
       "src": "",
       "projectGuid": "b24c1298-6001-4fc9-baa5-3e02bc22d7fb",
-      "lastModifiedDate": 1425373731129,
+      "lastModifiedDate": 1425492041000,
       "creationDate": 1425373731030
     },
     "sourceDirectory": "",
@@ -18,21 +18,44 @@
     "projectFiles": {},
     "projectDirectories": {},
     "libraries": [],
-    "cordovaPlugins": [],
+    "cordovaPlugins": [
+      {
+        "id": "org.apache.cordova.geolocation",
+        "version": "0.3.11",
+        "selectedState": "Included",
+        "data": {},
+        "paramvals": {}
+      },
+      {
+        "id": "org.apache.cordova.dialogs",
+        "version": "0.2.11",
+        "selectedState": "Included",
+        "data": {},
+        "paramvals": {}
+      },
+      {
+        "id": "org.apache.cordova.vibration",
+        "version": "0.3.12",
+        "selectedState": "Included",
+        "data": {},
+        "paramvals": {}
+      }
+    ],
     "serviceMethods": [],
     "buildConfigurations": {
       "Android": {
         "platform_": "android",
-        "runtime_": "W3C on Cordova",
+        "runtime_": "Cordova 3.x",
         "name_": "Android",
         "preferences_": {
           "android-minSdkVersion": "10",
           "android-targetSdkVersion": "19",
-          "android-installLocation": "auto"
+          "android-installLocation": "auto",
+          "Fullscreen": true
         },
         "isActive_": true,
-        "appName_": "my-diary-03",
-        "appID_": "not.yet.specified",
+        "appName_": "my little diary",
+        "appID_": "org.arkhi.diary",
         "appAccess_": [
           {
             "origin": "*"
@@ -45,20 +68,22 @@
         "appVersion_": "0.0.1",
         "appVersionCode_": "1",
         "crosswalkVersion_": "10",
-        "cordovaCLIVersion_": "4.1.2"
+        "cordovaCLIVersion_": "4.1.2",
+        "appAuthor_": "Fabien Basmaison"
       },
       "Android-Crosswalk": {
         "platform_": "android",
-        "runtime_": "W3C on Crosswalk",
+        "runtime_": "Crosswalk with Cordova 3.x",
         "name_": "Android-Crosswalk",
         "preferences_": {
           "android-minSdkVersion": "14",
           "android-targetSdkVersion": "19",
-          "android-installLocation": "auto"
+          "android-installLocation": "auto",
+          "Fullscreen": true
         },
         "isActive_": true,
-        "appName_": "my-diary-03",
-        "appID_": "not.yet.specified",
+        "appName_": "my little diary",
+        "appID_": "org.arkhi.diary",
         "appAccess_": [
           {
             "origin": "*"
@@ -71,19 +96,22 @@
         "appVersion_": "0.0.1",
         "appVersionCode_": "1",
         "crosswalkVersion_": "10",
-        "cordovaCLIVersion_": "4.1.2"
+        "cordovaCLIVersion_": "4.1.2",
+        "appDescription_": "",
+        "appAuthor_": "org.arkhi.diary"
       },
       "iOS": {
         "platform_": "ios",
-        "runtime_": "W3C on Cordova",
+        "runtime_": "Cordova 3.x",
         "name_": "iOS",
         "preferences_": {
           "ios-target": "6",
-          "ios-configuration": "adhoc"
+          "ios-configuration": "adhoc",
+          "Fullscreen": true
         },
         "isActive_": true,
-        "appName_": "my-diary-03",
-        "appID_": "not.yet.specified",
+        "appName_": "my ittle diary",
+        "appID_": "org.arkhi.diary",
         "appAccess_": [
           {
             "origin": "*"
@@ -95,16 +123,20 @@
         "excludedLibraries_": "",
         "appVersion_": "0.0.1",
         "cordovaCLIVersion_": "4.1.2",
-        "iosProvs_": []
+        "iosProvs_": [],
+        "appDescription_": "",
+        "appAuthor_": "Fabien Basmaison"
       },
       "Windows8": {
         "platform_": "windows8",
-        "runtime_": "W3C on Cordova",
+        "runtime_": "Cordova 3.x",
         "name_": "Windows8",
-        "preferences_": {},
+        "preferences_": {
+          "Fullscreen": true
+        },
         "isActive_": true,
-        "appName_": "my-diary-03",
-        "appID_": "not.yet.specified",
+        "appName_": "my little diary",
+        "appID_": "org.arkhi.diary",
         "appAccess_": [
           {
             "origin": "*"
@@ -115,83 +147,9 @@
         "addlPermissions_": "",
         "excludedLibraries_": "",
         "appVersion_": "0.0.0.1",
-        "cordovaCLIVersion_": "4.1.2"
-      },
-      "WebApp": {
-        "platform_": "webapp",
-        "runtime_": "W3C",
-        "name_": "WebApp",
-        "preferences_": {},
-        "isActive_": true,
-        "appName_": "my-diary-03",
-        "appID_": "not.yet.specified",
-        "appAccess_": [
-          {
-            "origin": "*"
-          }
-        ],
-        "icons_": [],
-        "splashes_": [],
-        "addlPermissions_": "",
-        "excludedLibraries_": "",
-        "appVersion_": "0.0.1"
-      },
-      "Firefox": {
-        "platform_": "firefoxos",
-        "runtime_": "W3C on Firefox OS",
-        "name_": "Firefox",
-        "preferences_": {},
-        "isActive_": true,
-        "appName_": "my-diary-03",
-        "appID_": "not.yet.specified",
-        "appAccess_": [
-          {
-            "origin": "*"
-          }
-        ],
-        "icons_": [],
-        "splashes_": [],
-        "addlPermissions_": "",
-        "excludedLibraries_": "",
-        "appVersion_": "0.0.1"
-      },
-      "Chrome": {
-        "platform_": "chromeos",
-        "runtime_": "W3C on Chrome OS",
-        "name_": "Chrome",
-        "preferences_": {},
-        "isActive_": true,
-        "appName_": "my-diary-03",
-        "appID_": "not.yet.specified",
-        "appAccess_": [
-          {
-            "origin": "*"
-          }
-        ],
-        "icons_": [],
-        "splashes_": [],
-        "addlPermissions_": "",
-        "excludedLibraries_": "",
-        "appVersion_": "0.0.1"
-      },
-      "Facebook": {
-        "platform_": "facebook",
-        "runtime_": "W3C on Facebook",
-        "name_": "Facebook",
-        "preferences_": {},
-        "isActive_": true,
-        "appName_": "my-diary-03",
-        "appID_": "not.yet.specified",
-        "appAccess_": [
-          {
-            "origin": "*"
-          }
-        ],
-        "icons_": [],
-        "splashes_": [],
-        "addlPermissions_": "",
-        "excludedLibraries_": "",
-        "appVersion_": "0.0.1"
+        "cordovaCLIVersion_": "4.1.2",
+        "appDescription_": "",
+        "appAuthor_": "Fabien Basmaison"
       }
     }
   }
