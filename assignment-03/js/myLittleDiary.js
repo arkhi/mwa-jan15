@@ -223,12 +223,9 @@ var myLittleDiary = (function () {
         return output;
     }
 
-    /**
-     * Display entries stored in the local storage.
-     */
-    function displayLocalEntries() {
-        addEntryToDOM(getEntriesFromDB());
-    }
+// *************************************************************************************************
+// entries
+// *************************************************************************************************
 
     /**
      * Returns all valid entries in the local storage.
@@ -257,6 +254,191 @@ var myLittleDiary = (function () {
 
         return entries;
     }
+
+    /**
+     * Display entries stored in the local storage.
+     */
+    function displayLocalEntries() {
+        addEntryToDOM(getEntriesFromDB());
+    }
+
+    /**
+     * Create a new entry based on the form.
+     * Show it on the document.
+     * Store it into DB.
+     * Notify user!
+     */
+    function postEntry() {
+        var entry       = cfg.defaultEntry(),
+            useLocation = $(cfg.select.ids.formLocation).prop('checked');
+
+        entry.entryID     = cfg.counter + 1;
+        entry.title       = $(cfg.select.ids.formTitle).val();
+        entry.description = $(cfg.select.ids.formDesc).val();
+
+        if (!entry.title || !entry.description) {
+            return;
+        }
+
+        addEntryToDOM([entry]);
+        addEntryToDB(entry);
+        addMarker(entry);
+        notifyUser('Your entry was posted successfully!');
+
+        if (true === useLocation) {
+            updateLocation(entry.entryID);
+        }
+    }
+
+    /**
+     * Add entry in the list of existing queries.
+     * @param {Array} data Contains the structure of entries to fill in the template.
+     */
+    function addEntryToDOM(entries) {
+        var output    = [],
+            objectsId = [];
+
+        // Create new objects and their references based on entries and templates.
+        try {
+            $.isArray(entries);
+            $.each(entries, function (i, entry) {
+                output.push(templatize(cfg.templates.entry.id, entry));
+                objectsId.push('#' + cfg.entryIDSuf + entry.entryID);
+            });
+        } catch (e) {
+            throw('Data provided is not an array with at least one entry: ' + e);
+        }
+
+        // Add all objects to DOM, and let event listener know we added specific entries.
+        $(cfg.select.classes.entriesContainer)
+            .prepend(output.reverse())
+            .trigger('entryAdded', [{
+                objects: $(objectsId.join(', '))
+            }]);
+    }
+
+    /**
+     * Store entry in the local storage and increment the counter.
+     * @param {Object} data JSON string describing the object to store.
+     *
+     * @param {Integer}     Optional entry ID
+     */
+    function addEntryToDB(data) {
+        var entryID = cfg.counter + 1;
+
+        if (1 < arguments.length) {
+            entryID = arguments[1];
+        }
+
+        try {
+            localStorage.setItem(entryID, JSON.stringify(data));
+            localStorage.setItem('counter', ++cfg.counter);
+        } catch (e) {
+            notifyUser('Sorry, there was a problem while submitting your entry, ' +
+                       'please check console log.',
+                       'warning');
+        }
+    }
+
+    /**
+     * Edit the content of an entry.
+     * @param {Integer} entryID ID of the entry to edit
+     */
+    function editEntry(entryID) {
+        var entry     = cfg.defaultEntry(),
+            $entryDOM = $('#' + cfg.entryIDSuf + entryID),
+            useNewLoc = $(cfg.select.ids.formLocation + '-' + entryID).prop('checked');
+
+        entry.entryID     = entryID;
+        entry.title       = $(cfg.select.ids.formTitle + '-' + entryID).val();
+        entry.description = $(cfg.select.ids.formDesc + '-' + entryID).val();
+        entry.location    = getEntry(entryID).location;
+
+        if (!entry.title || !entry.description) {
+            return;
+        }
+        
+        var $output = $(templatize(
+                cfg.templates.entry.id,
+                entry
+            )
+        );
+
+        if (true === useNewLoc) {
+            updateLocation(entryID);
+        }
+
+        addEntryToDB(entry, entryID);
+        updateMarker(entry);
+        panToMarker(entry);
+        $entryDOM.replaceWith($output);
+        notifyUser('Your entry was updated successfully!');
+
+        return $output;
+    }
+
+    /**
+     * Remove an entry from the document.
+     * Remove it into DB.
+     * Notify user!
+     * @param {Integer} entryID ID of the entry to remove
+     */
+    function removeEntry(entryID) {
+        var title = JSON.parse(localStorage.getItem(entryID)).title;
+
+        removeEntryFromDOM(entryID);
+        removeMarker(getEntry(entryID));
+        removeEntryFromDB(entryID);
+
+        notifyUser('The post “' + title + '” was removed successfully!');
+    }
+
+    /**
+     * Remove and entry from the DOM or notify the user if a problem occured.
+     * @param {Integer} entryID ID of the entry to remove
+     */
+    function removeEntryFromDOM(entryID) {
+        try {
+            $('#' + cfg.entryIDSuf + entryID).remove();
+        } catch (exception) {
+            notifyUser('Sorry, the entry could not be removed from the DOM.',
+                       'error');
+            throw(exception.message);
+        }
+    }
+
+    /**
+     * Remove an entry from the local storage or notify the user if a problem occured.
+     * @param {Integer} entryID ID of the entry to remove
+     */
+    function removeEntryFromDB(entryID) {
+        try {
+            localStorage.removeItem(entryID);
+        } catch (exception) {
+            notifyUser('Sorry, the entry could not be removed from the DB.',
+                       'error');
+            throw(exception.message);
+        }
+    }
+
+    /**
+     * Get any entry.
+     * @param  {Integer} key Any valid key defining an object in the local storage.
+     * @return {Object}      Item and its properties:values.
+     */
+    function getEntry(key) {
+        var item = JSON.parse(localStorage.getItem(key));
+
+        if (!item) {
+            throw('No item found!');
+        }
+
+        return item;
+    }
+
+// *************************************************************************************************
+// geolocation
+// *************************************************************************************************
 
     /**
      * Get location based on environment and user interaction.
@@ -335,6 +517,10 @@ var myLittleDiary = (function () {
                 giveFeedback('Your location was not updated for the following reason: ' + answer.msg);
             });
     }
+
+// *************************************************************************************************
+// map
+// *************************************************************************************************
 
     /**
      * Draw a map.
@@ -480,83 +666,9 @@ var myLittleDiary = (function () {
         }
     }
 
-    /**
-     * Create a new entry based on the form.
-     * Show it on the document.
-     * Store it into DB.
-     * Notify user!
-     */
-    function postEntry() {
-        var entry       = cfg.defaultEntry(),
-            useLocation = $(cfg.select.ids.formLocation).prop('checked');
-
-        entry.entryID     = cfg.counter + 1;
-        entry.title       = $(cfg.select.ids.formTitle).val();
-        entry.description = $(cfg.select.ids.formDesc).val();
-
-        if (!entry.title || !entry.description) {
-            return;
-        }
-
-        addEntryToDOM([entry]);
-        addEntryToDB(entry);
-        addMarker(entry);
-        notifyUser('Your entry was posted successfully!');
-
-        if (true === useLocation) {
-            updateLocation(entry.entryID);
-        }
-    }
-
-    /**
-     * Add entry in the list of existing queries.
-     * @param {Array} data Contains the structure of entries to fill in the template.
-     */
-    function addEntryToDOM(entries) {
-        var output    = [],
-            objectsId = [];
-
-        // Create new objects and their references based on entries and templates.
-        try {
-            $.isArray(entries);
-            $.each(entries, function (i, entry) {
-                output.push(templatize(cfg.templates.entry.id, entry));
-                objectsId.push('#' + cfg.entryIDSuf + entry.entryID);
-            });
-        } catch (e) {
-            throw('Data provided is not an array with at least one entry: ' + e);
-        }
-
-        // Add all objects to DOM, and let event listener know we added specific entries.
-        $(cfg.select.classes.entriesContainer)
-            .prepend(output.reverse())
-            .trigger('entryAdded', [{
-                objects: $(objectsId.join(', '))
-            }]);
-    }
-
-    /**
-     * Store entry in the local storage and increment the counter.
-     * @param {Object} data JSON string describing the object to store.
-     *
-     * @param {Integer}     Optional entry ID
-     */
-    function addEntryToDB(data) {
-        var entryID = cfg.counter + 1;
-
-        if (1 < arguments.length) {
-            entryID = arguments[1];
-        }
-
-        try {
-            localStorage.setItem(entryID, JSON.stringify(data));
-            localStorage.setItem('counter', ++cfg.counter);
-        } catch (e) {
-            notifyUser('Sorry, there was a problem while submitting your entry, ' +
-                       'please check console log.',
-                       'warning');
-        }
-    }
+// *************************************************************************************************
+// actions
+// *************************************************************************************************
 
     /**
      * Handle actions made on entries or other data related objects.
@@ -600,122 +712,9 @@ var myLittleDiary = (function () {
         setHeight($entryDOM);
     }
 
-    /**
-     * Edit the content of an entry.
-     * @param {Integer} entryID ID of the entry to edit
-     */
-    function editEntry(entryID) {
-        var entry     = cfg.defaultEntry(),
-            $entryDOM = $('#' + cfg.entryIDSuf + entryID),
-            useNewLoc = $(cfg.select.ids.formLocation + '-' + entryID).prop('checked');
-
-        entry.entryID     = entryID;
-        entry.title       = $(cfg.select.ids.formTitle + '-' + entryID).val();
-        entry.description = $(cfg.select.ids.formDesc + '-' + entryID).val();
-        entry.location    = getEntry(entryID).location;
-
-        if (!entry.title || !entry.description) {
-            return;
-        }
-        
-        var $output = $(templatize(
-                cfg.templates.entry.id,
-                entry
-            )
-        );
-
-        if (true === useNewLoc) {
-            updateLocation(entryID);
-        }
-
-        addEntryToDB(entry, entryID);
-        updateMarker(entry);
-        panToMarker(entry);
-        $entryDOM.replaceWith($output);
-        notifyUser('Your entry was updated successfully!');
-
-        return $output;
-    }
-
-    /**
-     * Remove an entry from the document.
-     * Remove it into DB.
-     * Notify user!
-     * @param {Integer} entryID ID of the entry to remove
-     */
-    function removeEntry(entryID) {
-        var title = JSON.parse(localStorage.getItem(entryID)).title;
-
-        removeEntryFromDOM(entryID);
-        removeMarker(getEntry(entryID));
-        removeEntryFromDB(entryID);
-
-        notifyUser('The post “' + title + '” was removed successfully!');
-    }
-
-    /**
-     * Remove and entry from the DOM or notify the user if a problem occured.
-     * @param {Integer} entryID ID of the entry to remove
-     */
-    function removeEntryFromDOM(entryID) {
-        try {
-            $('#' + cfg.entryIDSuf + entryID).remove();
-        } catch (exception) {
-            notifyUser('Sorry, the entry could not be removed from the DOM.',
-                       'error');
-            throw(exception.message);
-        }
-    }
-
-    /**
-     * Remove an entry from the local storage or notify the user if a problem occured.
-     * @param {Integer} entryID ID of the entry to remove
-     */
-    function removeEntryFromDB(entryID) {
-        try {
-            localStorage.removeItem(entryID);
-        } catch (exception) {
-            notifyUser('Sorry, the entry could not be removed from the DB.',
-                       'error');
-            throw(exception.message);
-        }
-    }
-
-    /**
-     * Get any entry.
-     * @param  {Integer} key Any valid key defining an object in the local storage.
-     * @return {Object}      Item and its properties:values.
-     */
-    function getEntry(key) {
-        var item = JSON.parse(localStorage.getItem(key));
-
-        if (!item) {
-            throw('No item found!');
-        }
-
-        return item;
-    }
-
-    /**
-     * Log a list of entries in the local storage.
-     */
-    function listEntries() {
-        console.log('entries in localStorage: ', localStorage);
-        console.log('entries in getEntriesFromDB(): ', getEntriesFromDB());
-    }
-
-    /**
-     * Clear all content from localStorage.
-     */
-    function clearLocalStorage() {
-        $(cfg.select.classes.entry).remove();
-        $.each(getEntriesFromDB(), function (i, entry) {
-            removeMarker(entry);
-        });
-        cfg.counter = 0;
-        localStorage.clear();
-        notifyUser('local storage cleared');
-    }
+// *************************************************************************************************
+// ui
+// *************************************************************************************************
 
     /**
      * Give visual hints that some content is actionable through JS.
@@ -852,6 +851,31 @@ var myLittleDiary = (function () {
         }
     }
 
+// *************************************************************************************************
+// debug
+// *************************************************************************************************
+
+    /**
+     * Log a list of entries in the local storage.
+     */
+    function listEntries() {
+        console.log('entries in localStorage: ', localStorage);
+        console.log('entries in getEntriesFromDB(): ', getEntriesFromDB());
+    }
+
+    /**
+     * Clear all content from localStorage.
+     */
+    function clearLocalStorage() {
+        $(cfg.select.classes.entry).remove();
+        $.each(getEntriesFromDB(), function (i, entry) {
+            removeMarker(entry);
+        });
+        cfg.counter = 0;
+        localStorage.clear();
+        notifyUser('local storage cleared');
+    }
+
     /**
      * Create dummy entries to ease development.
      */
@@ -908,9 +932,9 @@ var myLittleDiary = (function () {
         notifyUser('Dummy entries were added!');
     }
 
-// -------------------------------------------------------------------------------------------------
+// *************************************************************************************************
 // public variables
-// -------------------------------------------------------------------------------------------------
+// *************************************************************************************************
     // Stop script if a depency is missing.
     if (!testDependencies()) {
         return ('Oooopsie! Some dependencies are missing!');
