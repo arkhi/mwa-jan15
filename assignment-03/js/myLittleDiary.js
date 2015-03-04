@@ -221,7 +221,7 @@ var myLittleDiary = (function () {
      * @return {Array} Array of valid entries.
      */
     function getEntries() {
-        var i = 0, entries = [], entry, v;
+        var i = 0, entries = [], entry;
 
         if (0 === cfg.counter) {
             return entries;
@@ -230,11 +230,7 @@ var myLittleDiary = (function () {
         // Apparently, entries are still present in the localStorage somehow, so looping with .length
         // will return as much  missing entries as there was removed items.
         for (; i <= cfg.counter; i++) {
-            v = localStorage.getItem(i);
-
-            if (undefined !== v && v) {
-                entry = JSON.parse(v);
-            }
+            entry = getEntry(i);
 
             if (entry && entry.entryID && i === entry.entryID) {
                 entries.push(entry);
@@ -253,9 +249,11 @@ var myLittleDiary = (function () {
      * @return {Object}      Item and its properties:values.
      */
     function getEntry(key) {
-        var item = JSON.parse(localStorage.getItem(key));
+        var item;
 
-        if (!item) {
+        try {
+            item = JSON.parse(localStorage.getItem(key));
+        } catch(e) {
             throw('No item found!');
         }
 
@@ -292,7 +290,7 @@ var myLittleDiary = (function () {
         }
 
         addEntryToDOM([entry]);
-        updateEntryInDB(entry);
+        storeEntry(entry);
         addMarker(entry);
         notifyUser('Your entry was posted successfully!');
 
@@ -329,12 +327,12 @@ var myLittleDiary = (function () {
     }
 
     /**
-     * Store entry in the local storage and increment the counter.
+     * Store entry in the local storage and increment the counter if necessary.
      * @param {Object} data JSON string describing the object to store.
      *
      * @param {Integer}     Optional entry ID
      */
-    function updateEntryInDB(data) {
+    function storeEntry(data) {
         var type    = 'add',
             entryID = cfg.counter + 1;
 
@@ -384,7 +382,7 @@ var myLittleDiary = (function () {
             updateLocation(entryID);
         }
 
-        updateEntryInDB(entry, entryID);
+        storeEntry(entry, entryID);
         updateMarker(entry);
         panToMarker(entry);
         $entryDOM.replaceWith($output);
@@ -400,7 +398,7 @@ var myLittleDiary = (function () {
      * @param {Integer} entryID ID of the entry to remove
      */
     function removeEntry(entryID) {
-        var title = JSON.parse(localStorage.getItem(entryID)).title;
+        var title = getEntry(entryID).title;
 
         removeEntryFromDOM(entryID);
         removeMarker(getEntry(entryID));
@@ -502,15 +500,14 @@ var myLittleDiary = (function () {
      * @param  {Integer} entryID ID of an entry
      */
     function updateLocation(entryID) {
-        var entry     = JSON.parse(localStorage.getItem(entryID));
-
         return getLocation()
             .progress(function (answer) {
                 giveFeedback(answer, 'info');
             })
             .done(function (answer) {
+                var entry = getEntry(entryID);
                 entry.location = answer.location;
-                updateEntryInDB(entry, entryID);
+                storeEntry(entry, entryID);
 
                 updateMarker(entry);
 
@@ -708,7 +705,7 @@ var myLittleDiary = (function () {
         var $entryDOM = $('#' + cfg.entryIDSuf + entryID),
             form      = templatize(
                 cfg.templates.editEntry.id,
-                JSON.parse(localStorage.getItem(entryID))
+                getEntry(entryID)
             );
 
         $entryDOM.html(form);
@@ -938,7 +935,7 @@ var myLittleDiary = (function () {
             dummyEntries[i].entryID = 1 + cfg.counter;
             dummyEntries[i].time    = new Date().getTime();
 
-            updateEntryInDB(entry);
+            storeEntry(entry);
             addMarker(entry);
         });
 
