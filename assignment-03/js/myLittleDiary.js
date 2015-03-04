@@ -28,7 +28,8 @@ var myLittleDiary = (function () {
             mainToggler:      'toggle-all',
             closeAll:         'close-all',
             action:           'action',
-            mapOK:            'has-content'
+            mapOK:            'has-content',
+            pendingLocation:  'searching-location'
         },
 
         templates:  {
@@ -354,6 +355,21 @@ var myLittleDiary = (function () {
     }
 
     /**
+     * Show the form to edit an entry.
+     * @param {Integer} entryID ID of the entry to edit
+     */
+    function showEditForm(entryID) {
+        var $entryDOM = $('#' + cfg.entryIDSuf + entryID),
+            form      = templatize(
+                cfg.templates.editEntry.id,
+                getEntry(entryID)
+            );
+
+        $entryDOM.html(form);
+        setHeight($entryDOM);
+    }
+
+    /**
      * Edit the content of an entry.
      * @param {Integer} entryID ID of the entry to edit
      */
@@ -375,19 +391,21 @@ var myLittleDiary = (function () {
                 cfg.templates.entry.id,
                 entry
             )
-        );
+        ).html();
 
         if (true === useNewLoc) {
             updateLocation(entryID);
         }
 
         storeEntry(entry, entryID);
+        $entryDOM.html($output);
+        setHeight($entryDOM);
+
         updateMarker(entry);
         panToMarker(entry);
-        $entryDOM.replaceWith($output);
         notifyUser('Your entry was updated successfully!');
 
-        return $output;
+        return $entryDOM;
     }
 
     /**
@@ -425,8 +443,6 @@ var myLittleDiary = (function () {
      * @param {Integer} entryID ID of the entry to remove
      */
     function removeEntryFromDB(entryID) {
-
-
         try {
             localStorage.removeItem(entryID);
         } catch (exception) {
@@ -470,14 +486,13 @@ var myLittleDiary = (function () {
 
             switch (error.code) {
                 case 1:
-                    errorMsg = 'As defined in your settings, your location won’t be shared.';
+                    errorMsg = 'as defined in your settings, your location won’t be shared.';
                     break;
                 case 2:
-                    errorMsg = 'Your location is not available at the moment.';
+                    errorMsg = 'your location is not available at the moment.';
                     break;
                 case 3:
-                    errorMsg = 'We could not get your location because the operation timed out. ' +
-                               'You might try to edit your post later.';
+                    errorMsg = 'the operation timed out. You might try to edit your post later.';
                     break;
             }
 
@@ -499,8 +514,11 @@ var myLittleDiary = (function () {
      * @param  {Integer} entryID ID of an entry
      */
     function updateLocation(entryID) {
+        var $entryDOM = $('#' + cfg.entryIDSuf + entryID);
+
         return getLocation()
             .progress(function (answer) {
+                $entryDOM.addClass(cfg.classes.pendingLocation);
                 giveFeedback(answer, 'info');
             })
             .done(function (answer) {
@@ -514,7 +532,10 @@ var myLittleDiary = (function () {
                 giveFeedback('The location for “' + entry.title + '” has been updated.', 'info');
             })
             .fail(function (answer) {
-                giveFeedback('Your location was not updated for the following reason: ' + answer.msg);
+                giveFeedback('Your location was not updated because ' + answer.msg, 'error');
+            })
+            .always(function(){
+                $entryDOM.removeClass(cfg.classes.pendingLocation);
             });
     }
 
@@ -695,21 +716,6 @@ var myLittleDiary = (function () {
                         .addClass(cfg.classes.collapseTrigger);
                 break;
         }
-    }
-
-    /**
-     * Show the form to edit an entry.
-     * @param {Integer} entryID ID of the entry to edit
-     */
-    function showEditForm(entryID) {
-        var $entryDOM = $('#' + cfg.entryIDSuf + entryID),
-            form      = templatize(
-                cfg.templates.editEntry.id,
-                getEntry(entryID)
-            );
-
-        $entryDOM.html(form);
-        setHeight($entryDOM);
     }
 
 // *************************************************************************************************
