@@ -1,4 +1,5 @@
-var myLittleDiary = (function(){
+var myLittleDiary = (function () {
+    'use strict';
     var cfg = {
         debug: false,
 
@@ -58,7 +59,7 @@ var myLittleDiary = (function(){
             'localStorage'
         ],
 
-        defaultEntry: function(){
+        defaultEntry: function () {
             return {
                 'entryID':     null,
                 'title':       null,
@@ -73,36 +74,36 @@ var myLittleDiary = (function(){
      * @param  {array}   dependencies Methods needed for this application to run
      * @return {boolean}              Can we launch the app?
      */
-    var testDependencies = function testDependencies() {
-        var i, depLength = cfg.dependencies.length;
+    function testDependencies() {
+        var i = 0, error, depLength = cfg.dependencies.length;
 
-        for (i = 0; i < depLength; i++) {
-            if('undefined' === typeof window[cfg.dependencies[i]]) {
-                var error = 'This application needs ' + cfg.dependencies[i] + ' (and it cannot be found).';
+        for (; i < depLength; i++) {
+            if (undefined === window[cfg.dependencies[i]]) {
+                error = 'This application needs ' + cfg.dependencies[i] + ' (which cannot be found).';
                 notifyUser(error, 'error');
                 return false;
             }
         }
 
         return true;
-    };
+    }
 
     /**
      * Launch basic setup for the application.
      */
-    var init = function init(){
-        cfg.counter = localStorage['counter'] ? parseInt(localStorage['counter']) : 0;
+    function init() {
+        cfg.counter = localStorage.counter ? parseInt(localStorage.counter, 10) : 0;
         cfg.select  = createSelectors();
 
         // Collapse all contents.
         // Show the user they can click on titles.
         // Set default heights.
         // Toggle classes and compute heights on click.
-        $(document).ready(function(){
+        $(document).ready(function () {
             var $containers = $(cfg.select.classes.canCollapse);
 
             // Register templates.
-            $.each(cfg.templates, function(tpl){
+            $.each(cfg.templates, function (tpl) {
                 jsviews.templates(cfg.templates[tpl].id, $('#' + cfg.templates[tpl].id).html());
             });
 
@@ -115,20 +116,20 @@ var myLittleDiary = (function(){
             );
 
             // Collapse collapsable items.
-            $containers.each(function(){
+            $containers.each(function () {
                 showClickable($(this));
                 setHeight($(this));
             });
 
             // Reset heights when the window is resized or the orientation changes.
-            $(window).on('resize', function(){
-                $containers.each(function(){
+            $(window).on('resize', function () {
+                $containers.each(function () {
                     setHeight($(this));
                 });
             });
 
             // Handle collapsable items.
-            $(cfg.select.classes.entriesContainer).on('click', cfg.select.classes.collapseTrigger, function(){
+            $(cfg.select.classes.entriesContainer).on('click', cfg.select.classes.collapseTrigger, function () {
                 var $collapsable = $(this).closest(cfg.select.classes.canCollapse);
                 $collapsable.toggleClass(cfg.classes.state);
                 setHeight($collapsable);
@@ -141,33 +142,33 @@ var myLittleDiary = (function(){
             // Collapse all!
             $(cfg.select.classes.mainToggler)
                 .addClass(cfg.classes.canClick)
-                .on('click', function(){
+                .on('click', function () {
                     $(cfg.select.classes.canCollapse)
                         .removeClass(cfg.classes.state)
-                        .each(function(){
-                            setHeight($(this))
+                        .each(function () {
+                            setHeight($(this));
                         });
-            });
+                });
 
             // Handle actions on entries.
-            $(cfg.select.classes.entriesContainer).on('click', cfg.select.classes.action, function(event){
+            $(cfg.select.classes.entriesContainer).on('click', cfg.select.classes.action, function (event) {
                 event.preventDefault();
 
                 handleActions(this);
             });
 
             // Handle feedbacks and related actions.
-            $(cfg.select.ids.feedbacks).on('click', cfg.select.classes.canClick, function(){
+            $(cfg.select.ids.feedbacks).on('click', cfg.select.classes.canClick, function () {
                 myLittleDiary[$(this).data('action')]($(this));
             });
 
             // Handle dev tools and related actions.
             if (cfg.debug) {
                 $('html').addClass('debug');
-                $(cfg.select.ids.devActions).on('click', cfg.select.classes.action, function(){
+                $(cfg.select.ids.devActions).on('click', cfg.select.classes.action, function () {
                     myLittleDiary[$(this).data('action')]();
                 });
-            };
+            }
 
             // Test status for notifications.
             requestNotificationPermission();
@@ -183,32 +184,32 @@ var myLittleDiary = (function(){
          * Check if some entries were added dynamicaly
          * @param {object} data jQuery objects to operate on.
          */
-        $(cfg.select.classes.entriesContainer).on('entryAdded', function(event, data){
+        $(cfg.select.classes.entriesContainer).on('entryAdded', function (event, data) {
             showClickable(data.objects);
             setHeight(data.objects);
         });
 
-        $(cfg.select.ids.formPostEntry).on('submit click', function(event){
+        $(cfg.select.ids.formPostEntry).on('submit click', function (event) {
             event.preventDefault();
             postEntry();
         });
-    };
+    }
 
     /**
      * Create selectors based on classes and ids defined in cfg.
      */
-    var createSelectors = function createSelectors() {
-        selectors = {ids: {}, classes: {} };
+    function createSelectors() {
+        var selectors = {ids: {}, classes: {} };
 
-        $.each(cfg.ids, function(key, value){
-            selectors['ids'][key] = '#' + value;
+        $.each(cfg.ids, function (key, value) {
+            selectors.ids[key] = '#' + value;
         });
-        $.each(cfg.classes, function(key, value){
-            selectors['classes'][key] = '.' + value;
+        $.each(cfg.classes, function (key, value) {
+            selectors.classes[key] = '.' + value;
         });
 
         return selectors;
-    };
+    }
 
     /**
      * Populate a template with some data
@@ -216,63 +217,65 @@ var myLittleDiary = (function(){
      * @param  {JSON}   data Data to be passed to the template.
      * @return {jQuery}      Rendered templates as a jQuery object.
      */
-    var templatize = function templatize(tpl, data) {
+    function templatize(tpl, data) {
         var output = jsviews.render[tpl](data);
 
         return output;
-    };
+    }
 
     /**
      * Display entries stored in the local storage.
      */
-    var displayLocalEntries = function displayLocalEntries() {
+    function displayLocalEntries() {
         addEntryToDOM(getEntriesFromDB());
-    };
+    }
 
     /**
      * Returns all valid entries in the local storage.
      * @return {Array} Array of valid entries.
      */
-    var getEntriesFromDB = function getEntriesFromDB() {
-        var entries = [];
+    function getEntriesFromDB() {
+        if (0 === cfg.counter) {
+            return null;
+        }
+
+        var i = 0, entries = [], entry, v;
 
         // Apparently, entries are still present in the localStorage somehow, so looping with .length
         // will return as much  missing entries as there was removed items.
-        for (var i = 0; i <= cfg.counter; i++) {
-            var entry = {},
-                v     = localStorage.getItem(i);
+        for (; i <= cfg.counter; i++) {
+            v = localStorage.getItem(i);
 
             if (undefined !== v && v) {
                 entry = JSON.parse(v);
             }
 
-            if (entry.entryID) {
+            if (entry && entry.entryID) {
                 entries.push(entry);
             }
         }
 
         return entries;
-    };
+    }
 
     /**
      * Get location based on environment and user interaction.
      * @return {Promise} A deferred object to be used by the caller.
      */
-    var getLocation = function getLocation() {
+    function getLocation() {
         var checking = new $.Deferred();
 
         function getLocationSuccess(position) {
-            var latitude  = position.coords.latitude;
-            var longitude = position.coords.longitude;
-            var altitude  = position.coords.altitude;
-            var accuracy  = position.coords.accuracy;
-
-            var location = {
-                latitude: latitude,
-                longitude: longitude,
-                altitude: altitude,
-                accuracy: accuracy
-            }
+            var latitude  = position.coords.latitude,
+                longitude = position.coords.longitude,
+                altitude  = position.coords.altitude,
+                accuracy  = position.coords.accuracy,
+                location  = {
+                    latitude: latitude,
+                    longitude: longitude,
+                    altitude: altitude,
+                    accuracy: accuracy
+                };
 
             checking.resolve({
                 msg: 'Got your location!',
@@ -281,6 +284,8 @@ var myLittleDiary = (function(){
         }
 
         function getLocationError(error) {
+            var errorMsg;
+
             switch (error.code) {
                 case 1:
                     errorMsg = 'As defined in your settings, your location won’t be shared.';
@@ -289,8 +294,8 @@ var myLittleDiary = (function(){
                     errorMsg = 'Your location is not available at the moment.';
                     break;
                 case 3:
-                    errorMsg = 'We could not get your location because the operation timed out. '
-                             + 'You might try to edit your post later.';
+                    errorMsg = 'We could not get your location because the operation timed out. ' +
+                               'You might try to edit your post later.';
                     break;
             }
 
@@ -300,31 +305,25 @@ var myLittleDiary = (function(){
             });
         }
 
-        function waiting() {
-            if ('pending' === checking.state()) {
-                checking.notify('Waiting for user and browser to take action.');
-            }
-        }
-
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(getLocationSuccess, getLocationError, cfg.geoOptions);
         }
 
-        return checking.promise();
-    };
+        return checking.notify('Waiting for user and browser to take action.');
+    }
 
     /**
      * Update the location after an entry has been posted or updated.
      * @param  {Integer} entryID ID of an entry
      */
-    var updateLocation = function updateLocation(entryID) {
-        var entry = JSON.parse(localStorage.getItem(entryID));
+    function updateLocation(entryID) {
+        var entry     = JSON.parse(localStorage.getItem(entryID));
 
         return getLocation()
-            .progress(function(answer){
-                giveFeedback(answer.msg, 'info');
+            .progress(function (answer) {
+                giveFeedback(answer, 'info');
             })
-            .done(function(answer){
+            .done(function (answer) {
                 entry.location = answer.location;
                 addEntryToDB(entry, entryID);
 
@@ -332,21 +331,22 @@ var myLittleDiary = (function(){
 
                 giveFeedback('The location for “' + entry.title + '” has been updated.', 'info');
             })
-            .fail(function(answer){
+            .fail(function (answer) {
                 giveFeedback('Your location was not updated for the following reason: ' + answer.msg);
             });
-    };
+    }
 
     /**
      * Draw a map.
      * @return {map} Leaflet map object
      */
-    var drawMap = function drawMap() {
+    function drawMap() {
         // Test availability for leaflet and stop here if it is not available.
         // Let CSS know it can style the map if leaflet is here.
         try {
-            L.version;
-            $(cfg.select.ids.map).addClass(cfg.classes.mapOK);
+            if(L.version) {
+                $(cfg.select.ids.map).addClass(cfg.classes.mapOK);
+            }
         } catch (e) {
             throw(e.message);
         }
@@ -362,36 +362,33 @@ var myLittleDiary = (function(){
         }).addTo(cfg.map);
 
         return cfg.map;
-    };
+    }
 
     /**
      * Place markers on the map for each existing entry.
      * Fit the map so that all markers are visible.
      * @param  {Map} map Leaflet Map object.
      */
-    var placeMarkers = function placeMarkers() {
-        if(undefined === cfg.map) {
+    function placeMarkers() {
+        if (undefined === cfg.map) {
             throw('"map" is not defined.');
         }
 
-        $.each(getEntriesFromDB(), function(i, entry){
+        $.each(getEntriesFromDB(), function (i, entry) {
             if (entry.location) {
-                var lat = entry.location.latitude,
-                    lon = entry.location.longitude;
-
                 addMarker(entry);
             }
         });
-    };
+    }
 
     /**
      * Add a marker for a newly created entry.
      * @param {JSON} entry Structure of an object
      */
-    var addMarker = function addMarker (entry) {
+    function addMarker(entry) {
         if (entry.location) {
             var marker = cfg.markers[entry.entryID] = {},
-                latLng = [entry.location.latitude, entry.location.longitude]
+                latLng = [entry.location.latitude, entry.location.longitude];
 
             marker.layer = L.marker(latLng).addTo(cfg.map);
             marker.popup = L.popup().setContent('<b>' + entry.title + '</b>');
@@ -402,14 +399,14 @@ var myLittleDiary = (function(){
             fitBoundaries();
             marker.layer.openPopup();
         }
-    };
+    }
 
     /**
      * Update a marker to match new geolocation.
      * @param {JSON} entry Structure of an object
      */
-    var updateMarker = function updateMarker (entry) {
-        marker = cfg.markers[entry.entryID];
+    function updateMarker(entry) {
+        var marker = cfg.markers[entry.entryID];
 
         if (marker) {
             var latLng = [entry.location.latitude, entry.location.longitude];
@@ -423,40 +420,40 @@ var myLittleDiary = (function(){
         } else {
             addMarker(entry);
         }
-    };
+    }
 
     /**
      * Remove a marker from the map.
      * @param {JSON} entry Structure of an object
      */
-    var removeMarker = function removeMarker (entry) {
+    function removeMarker(entry) {
         if (cfg.markers[entry.entryID]) {
             var prevBound = findInBoundaries(entry);
             cfg.boundaries.splice(prevBound, 1);
             cfg.map.removeLayer(cfg.markers[entry.entryID].layer);
             fitBoundaries();
         }
-    };
+    }
 
     /**
      * Pan to a marker symbolizing an entry.
      * @param {JSON} entry Structure of an object
      */
-    var panToMarker = function panToMarker(entry) {
+    function panToMarker(entry) {
         if (cfg.markers[entry.entryID]) {
             var latLng = [entry.location.latitude, entry.location.longitude];
 
             cfg.markers[entry.entryID].layer.openPopup();
             cfg.map.panTo(latLng);
         }
-    };
+    }
 
     /**
      * Find the index of the matching marker in the boundaries (for update or removal).
      * @param {JSON}     entry Structure of an object
      * @return {Integer}       The position of the matching coordinates in the array
      */
-    var findInBoundaries = function findInBoundaries(entry) {
+    function findInBoundaries(entry) {
         if (cfg.markers[entry.entryID]) {
             var prevCoords  = cfg.markers[entry.entryID].layer.getLatLng(),
                 prevLatLng  = prevCoords.lat + ',' + prevCoords.lng,
@@ -468,20 +465,20 @@ var myLittleDiary = (function(){
                 if (prevLatLng === cfg.boundaries[i].join(',')) {
                     break;
                 }
-            };
+            }
 
             return i - 1;
         }
-    };
+    }
 
     /**
      * Fit the view so that all markers are visible.
      */
-    var fitBoundaries = function fitBoundaries() {
-        if(0 < cfg.boundaries.length) {
+    function fitBoundaries() {
+        if (0 < cfg.boundaries.length) {
             cfg.map.fitBounds(cfg.boundaries);
         }
-    };
+    }
 
     /**
      * Create a new entry based on the form.
@@ -489,18 +486,17 @@ var myLittleDiary = (function(){
      * Store it into DB.
      * Notify user!
      */
-    var postEntry = function postEntry() {
-        var entry = cfg.defaultEntry();
+    function postEntry() {
+        var entry       = cfg.defaultEntry(),
+            useLocation = $(cfg.select.ids.formLocation).prop('checked');
 
         entry.entryID     = cfg.counter + 1;
         entry.title       = $(cfg.select.ids.formTitle).val();
         entry.description = $(cfg.select.ids.formDesc).val();
 
-        useLocation = $(cfg.select.ids.formLocation).prop('checked');
-
         if (!entry.title || !entry.description) {
             return;
-        };
+        }
 
         addEntryToDOM([entry]);
         addEntryToDB(entry);
@@ -510,21 +506,21 @@ var myLittleDiary = (function(){
         if (true === useLocation) {
             updateLocation(entry.entryID);
         }
-    };
+    }
 
     /**
      * Add entry in the list of existing queries.
      * @param {Array} data Contains the structure of entries to fill in the template.
      */
-    var addEntryToDOM = function addEntryToDOM(entries) {
+    function addEntryToDOM(entries) {
         var output    = [],
             objectsId = [];
 
         // Create new objects and their references based on entries and templates.
         try {
             $.isArray(entries);
-            $.each(entries, function(i, entry){
-                output.push(templatize(cfg.templates['entry'].id, entry));
+            $.each(entries, function (i, entry) {
+                output.push(templatize(cfg.templates.entry.id, entry));
                 objectsId.push('#' + cfg.entryIDSuf + entry.entryID);
             });
         } catch (e) {
@@ -537,7 +533,7 @@ var myLittleDiary = (function(){
             .trigger('entryAdded', [{
                 objects: $(objectsId.join(', '))
             }]);
-    };
+    }
 
     /**
      * Store entry in the local storage and increment the counter.
@@ -545,10 +541,10 @@ var myLittleDiary = (function(){
      *
      * @param {Integer}     Optional entry ID
      */
-    var addEntryToDB = function addEntryToDB(data) {
+    function addEntryToDB(data) {
         var entryID = cfg.counter + 1;
 
-        if(1 < arguments.length) {
+        if (1 < arguments.length) {
             entryID = arguments[1];
         }
 
@@ -556,22 +552,22 @@ var myLittleDiary = (function(){
             localStorage.setItem(entryID, JSON.stringify(data));
             localStorage.setItem('counter', ++cfg.counter);
         } catch (e) {
-            notifyUser('Sorry, there was a problem while submitting your entry, '
-                     + 'please check console log.',
+            notifyUser('Sorry, there was a problem while submitting your entry, ' +
+                       'please check console log.',
                        'warning');
         }
-    };
+    }
 
     /**
      * Handle actions made on entries or other data related objects.
      * @param  {Event} target Target of the current event
      */
-    var handleActions = function handleActions(target) {
+    function handleActions(target) {
         var $collapsable = $(target).closest(cfg.select.classes.canCollapse),
             $entryID = $collapsable.attr('id').replace(cfg.entryIDSuf, ''),
             action   = $(target).data('action');
 
-        switch(action) {
+        switch (action) {
             case 'delete':
                 removeEntry($entryID);
                 break;
@@ -587,28 +583,28 @@ var myLittleDiary = (function(){
                         .addClass(cfg.classes.collapseTrigger);
                 break;
         }
-    };
+    }
 
     /**
      * Show the form to edit an entry.
      * @param {Integer} entryID ID of the entry to edit
      */
-    var showEditForm = function showEditForm(entryID) {
+    function showEditForm(entryID) {
         var $entryDOM = $('#' + cfg.entryIDSuf + entryID),
             form      = templatize(
-                cfg.templates['editEntry'].id,
+                cfg.templates.editEntry.id,
                 JSON.parse(localStorage.getItem(entryID))
             );
 
         $entryDOM.html(form);
         setHeight($entryDOM);
-    };
+    }
 
     /**
      * Edit the content of an entry.
      * @param {Integer} entryID ID of the entry to edit
      */
-    var editEntry = function editEntry(entryID) {
+    function editEntry(entryID) {
         var entry     = cfg.defaultEntry(),
             $entryDOM = $('#' + cfg.entryIDSuf + entryID),
             useNewLoc = $(cfg.select.ids.formLocation + '-' + entryID).prop('checked');
@@ -620,16 +616,17 @@ var myLittleDiary = (function(){
 
         if (!entry.title || !entry.description) {
             return;
-        };
+        }
+        
+        var $output = $(templatize(
+                cfg.templates.entry.id,
+                entry
+            )
+        );
 
         if (true === useNewLoc) {
             updateLocation(entryID);
         }
-
-        var $output = $(templatize(
-            cfg.templates['entry'].id,
-            entry
-        ));
 
         addEntryToDB(entry, entryID);
         updateMarker(entry);
@@ -638,7 +635,7 @@ var myLittleDiary = (function(){
         notifyUser('Your entry was updated successfully!');
 
         return $output;
-    };
+    }
 
     /**
      * Remove an entry from the document.
@@ -646,7 +643,7 @@ var myLittleDiary = (function(){
      * Notify user!
      * @param {Integer} entryID ID of the entry to remove
      */
-    var removeEntry = function removeEntry(entryID) {
+    function removeEntry(entryID) {
         var title = JSON.parse(localStorage.getItem(entryID)).title;
 
         removeEntryFromDOM(entryID);
@@ -654,13 +651,13 @@ var myLittleDiary = (function(){
         removeEntryFromDB(entryID);
 
         notifyUser('The post “' + title + '” was removed successfully!');
-    };
+    }
 
     /**
      * Remove and entry from the DOM or notify the user if a problem occured.
      * @param {Integer} entryID ID of the entry to remove
      */
-    var removeEntryFromDOM = function removeEntryFromDOM(entryID) {
+    function removeEntryFromDOM(entryID) {
         try {
             $('#' + cfg.entryIDSuf + entryID).remove();
         } catch (exception) {
@@ -668,13 +665,13 @@ var myLittleDiary = (function(){
                        'error');
             throw(exception.message);
         }
-    };
+    }
 
     /**
      * Remove an entry from the local storage or notify the user if a problem occured.
      * @param {Integer} entryID ID of the entry to remove
      */
-    var removeEntryFromDB = function removeEntryFromDB(entryID) {
+    function removeEntryFromDB(entryID) {
         try {
             localStorage.removeItem(entryID);
         } catch (exception) {
@@ -682,81 +679,83 @@ var myLittleDiary = (function(){
                        'error');
             throw(exception.message);
         }
-    };
+    }
 
     /**
      * Get any entry.
      * @param  {Integer} key Any valid key defining an object in the local storage.
      * @return {Object}      Item and its properties:values.
      */
-    var getEntry = function getEntry(key) {
+    function getEntry(key) {
         var item = JSON.parse(localStorage.getItem(key));
 
-        if(!item) throw('No item found!');
+        if (!item) {
+            throw('No item found!');
+        }
 
         return item;
-    };
+    }
 
     /**
      * Log a list of entries in the local storage.
      */
-    var listEntries = function listEntries() {
+    function listEntries() {
         console.log('entries in localStorage: ', localStorage);
         console.log('entries in getEntriesFromDB(): ', getEntriesFromDB());
-    };
+    }
 
     /**
      * Clear all content from localStorage.
      */
-    var clearLocalStorage = function clearLocalStorage() {
+    function clearLocalStorage() {
         $(cfg.select.classes.entry).remove();
-        $.each(getEntriesFromDB(), function(i, entry){
+        $.each(getEntriesFromDB(), function (i, entry) {
             removeMarker(entry);
         });
         cfg.counter = 0;
         localStorage.clear();
         notifyUser('local storage cleared');
-    };
+    }
 
     /**
      * Give visual hints that some content is actionable through JS.
      * @param {jQuery} $objects Containers following the template for entries.
      */
-    var showClickable = function showClickable($objects) {
+    function showClickable($objects) {
         $objects.find(cfg.select.classes.collapseTrigger).addClass(cfg.classes.canClick);
 
         return $objects;
-    };
+    }
 
     /**
      * Set height fot targeted element.
      * @param {jQuery} $container Object representing DOM elements.
      */
-    var setHeight = function setHeight($container) {
+    function setHeight($container) {
         var headerH  = $container.find(cfg.select.classes.collapseTrigger).outerHeight(true),
             contentH = $container.find(cfg.select.classes.collapseToggled).outerHeight(true);
 
-        if($container.hasClass(cfg.classes.state)) {
+        if ($container.hasClass(cfg.classes.state)) {
             $container.height(headerH + contentH + 'px');
         } else {
             $container.height(headerH + 'px');
         }
 
         return $container;
-    };
+    }
 
     /**
      * Test if notifications are allowed and ask in case they’re not.
      */
-    var requestNotificationPermission = function requestNotificationPermission() {
-        if(window.Notification) {
+    function requestNotificationPermission() {
+        if (window.Notification) {
             // giveFeedback('Notification.permission: ' + Notification.permission, 'info');
 
-            if('default' === Notification.permission) {
+            if ('default' === Notification.permission) {
                 Notification.requestPermission();
             }
         }
-    };
+    }
 
     /**
      * Inform the user about what’s been done. This is an alternative to browser notifications if
@@ -764,15 +763,15 @@ var myLittleDiary = (function(){
      * @param  {String} msg  The content of the feedback.
      * @param  {String} type The type of feeback we supply: error, info or warning.
      */
-    var giveFeedback = function giveFeedback(msg, type) {
-        var entry = templatize(cfg.templates['feedbackEntry'].id,
+    function giveFeedback(msg, type) {
+        var entry = templatize(cfg.templates.feedbackEntry.id,
                                {
                                    'type': type,
                                    'msg': msg
                                }),
             $feedbacks = $('#' + cfg.ids.feedbacks);
 
-        if(!$feedbacks.children().length) {
+        if (!$feedbacks.children().length) {
             $feedbacks.prepend(
                 $('<a/>', {
                     class:         cfg.classes.closeAll + ' ' + cfg.classes.canClick,
@@ -784,28 +783,28 @@ var myLittleDiary = (function(){
         }
 
         $feedbacks.prepend(entry);
-    };
+    }
 
     /**
      * Close a specific feedback.
      * @param  {DOM} feedback Element targetted.
      */
-    var closeFeedback = function closeFeedback(feedback) {
+    function closeFeedback(feedback) {
         var $feedback = $(feedback);
 
-        if(0 === $feedback.siblings(cfg.select.classes.feedback).length){
+        if (0 === $feedback.siblings(cfg.select.classes.feedback).length) {
             closeFeedbacks();
         } else {
             $feedback.remove();
         }
-    };
+    }
 
     /**
      * Close all feedbacks.
      */
-    var closeFeedbacks = function closeFeedbacks() {
+    function closeFeedbacks() {
         $('#' + cfg.ids.feedbacks).empty();
-    };
+    }
 
     /**
      * Pushes a notification to the browser that will be displayed to the user if this one allows it.
@@ -814,15 +813,16 @@ var myLittleDiary = (function(){
      * @option {String} type  Set the type of notification: error, warning or default (success).
      * @option {String} title Set the title for the notification box (Default will be set if null).
      */
-    var notifyUser = function notifyUser(body) {
+    function notifyUser(body) {
         var argumentsL = arguments.length,
             icon       = "img/dialog-information.svg",
             title      = 'Good!',
-            type       = 'default';
+            type       = 'default',
+            notification;
 
-        if(2 === argumentsL) {
+        if (2 === argumentsL) {
             type = arguments[1];
-            switch(type) {
+            switch (type) {
                 case 'error':
                     icon  = "img/dialog-error.svg";
                     title = 'Oopsie…';
@@ -838,35 +838,35 @@ var myLittleDiary = (function(){
             title = arguments[2];
         }
 
-        if(window.Notification) {
-            var notification = new Notification(
+        if (window.Notification) {
+            notification = new Notification(
                 title,
-                { 
+                {
                     icon: icon,
                     body: body
                 });
         }
 
-        if(!Notification.permission || true === cfg.debug) {
+        if (!Notification.permission || true === cfg.debug) {
             giveFeedback(body, type, title);
         }
-    };
+    }
 
     /**
      * Create dummy entries to ease development.
      */
-    var populate = function populate() {
+    function populate() {
         var dummyEntries = [
             {
                 'entryID':     cfg.counter + 1,
                 'title':       'Test of HTML in the description!',
-                'description': 'let’s write something (again)…The following object will populate a template:\n'
-                                         + '<code><pre>var entries = [{\n'
-                                         + '  \'entryId\'     : 1,\n'
-                                         + '  \'title\'       : \'Entry generated with a JS object\',\n'
-                                         + '  \'description\' : \'The following object will populate a template:\'\n'
-                                         + '  [rince and repeat…]\n'
-                                         + '}]</pre></code>',
+                'description': 'let’s write something (again)…The following object will populate a template:\n' +
+                               '<code><pre>var entries = [{\n' +
+                               '  \'entryId\'     : 1,\n' +
+                               '  \'title\'       : \'Entry generated with a JS object\',\n' +
+                               '  \'description\' : \'The following object will populate a template:\'\n' +
+                               '  [rince and repeat…]\n' +
+                               '}]</pre></code>',
                 'location':    {
                     "latitude":  30,
                     "longitude": 120,
@@ -888,17 +888,17 @@ var myLittleDiary = (function(){
             {
                 'entryID':     cfg.counter + 3,
                 'title':       'Le poinçonneur des Lilas',
-                'description': 'Des p’tits trous, des p’tits trous ! Toujours des p’tits trous…',
+                'description': 'Des p’tits trous, des p’tits trous&nbsp;! Toujours des p’tits trous…',
                 'location':    {
                     "latitude":  35,
                     "longitude": 130,
                     "altitude":  60,
                     "accuracy":  10
                 }
-            },
+            }
         ];
 
-        $.each(dummyEntries, function(i, entry){
+        $.each(dummyEntries, function (i, entry) {
             addEntryToDB(entry);
             addMarker(entry);
         });
@@ -912,7 +912,7 @@ var myLittleDiary = (function(){
 // public variables
 // -------------------------------------------------------------------------------------------------
     // Stop script if a depency is missing.
-    if(!testDependencies()) {
+    if (!testDependencies()) {
         return ('Oooopsie! Some dependencies are missing!');
     }
 

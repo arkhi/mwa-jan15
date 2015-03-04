@@ -105,6 +105,10 @@
         cursor: pointer;
       }
 
+      .searching-location {
+        background-color: #f00;
+      }
+
       /* form */
 
       .add-entry {
@@ -238,13 +242,6 @@
       <button class="action" data-action="listEntries">list entries</button>
     </div>
 
-    <!-- <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script> -->
-    <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> -->
-    <script src="js/jsrender.min.js"></script>
-    <script src="js/jquery-1.11.2.min.js"></script>
-    <script src="js/leaflet/leaflet.js"></script>
-    <script src="js/myLittleDiary.js"></script>
-
     <script id="tpl-entry" type="text/x-jsrender">
       <article id="entry-{{:entryID}}" class="entry can-collapse">
         <h2 class="collapse-trigger">{{:title}}</h2>
@@ -286,8 +283,15 @@
       </div>
     </script>
 
+    <!-- <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script> -->
+    <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> -->
+    <script src="js/jsrender.min.js"></script>
+    <script src="js/jquery-1.11.2.min.js"></script>
+    <script src="js/leaflet/leaflet.js"></script>
+    <script src="js/myLittleDiary.js"></script>
+
     <script>
-      // myLittleDiary.cfg.debug = true;
+      myLittleDiary.cfg.debug = true;
     </script>
   </body>
 </html>
