@@ -62,6 +62,7 @@ var myLittleDiary = (function () {
         defaultEntry: function () {
             return {
                 'entryID':     null,
+                'time':        new Date().getTime(),
                 'title':       null,
                 'description': null,
                 'location':    false
@@ -896,7 +897,6 @@ var myLittleDiary = (function () {
     function populate() {
         var dummyEntries = [
             {
-                'entryID':     cfg.counter + 1,
                 'title':       'Test of HTML in the description!',
                 'description': 'let’s write something (again)…The following object will populate a template:\n' +
                                '<code><pre>var entries = [{\n' +
@@ -913,7 +913,6 @@ var myLittleDiary = (function () {
                 }
             },
             {
-                'entryID':     cfg.counter + 2,
                 'title':       'One more tiiiiime!',
                 'description': 'Pour faiiiire un succès de laaaaarmes !',
                 'location':    {
@@ -924,7 +923,6 @@ var myLittleDiary = (function () {
                 }
             },
             {
-                'entryID':     cfg.counter + 3,
                 'title':       'Le poinçonneur des Lilas',
                 'description': 'Des p’tits trous, des p’tits trous&nbsp;! Toujours des p’tits trous…',
                 'location':    {
@@ -937,6 +935,9 @@ var myLittleDiary = (function () {
         ];
 
         $.each(dummyEntries, function (i, entry) {
+            dummyEntries[i].entryID = 1 + cfg.counter;
+            dummyEntries[i].time    = new Date().getTime();
+
             updateEntryInDB(entry);
             addMarker(entry);
         });
