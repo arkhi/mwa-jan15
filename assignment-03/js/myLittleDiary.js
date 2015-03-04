@@ -92,7 +92,7 @@ var myLittleDiary = (function () {
      * Launch basic setup for the application.
      */
     function init() {
-        cfg.counter = localStorage.counter ? parseInt(localStorage.counter, 10) : 0;
+        cfg.counter = localStorage.getItem('counter') ? parseInt(localStorage.getItem('counter'), 10) : 0;
         cfg.select  = createSelectors();
 
         // Collapse all contents.
@@ -211,18 +211,6 @@ var myLittleDiary = (function () {
         return selectors;
     }
 
-    /**
-     * Populate a template with some data
-     * @param  {String} tpl  ID selector for the template.
-     * @param  {JSON}   data Data to be passed to the template.
-     * @return {jQuery}      Rendered templates as a jQuery object.
-     */
-    function templatize(tpl, data) {
-        var output = jsviews.render[tpl](data);
-
-        return output;
-    }
-
 // *************************************************************************************************
 // entries
 // *************************************************************************************************
@@ -231,12 +219,12 @@ var myLittleDiary = (function () {
      * Returns all valid entries in the local storage.
      * @return {Array} Array of valid entries.
      */
-    function getEntriesFromDB() {
-        if (0 === cfg.counter) {
-            return null;
-        }
-
+    function getEntries() {
         var i = 0, entries = [], entry, v;
+
+        if (0 === cfg.counter) {
+            return entries;
+        }
 
         // Apparently, entries are still present in the localStorage somehow, so looping with .length
         // will return as much  missing entries as there was removed items.
@@ -247,7 +235,7 @@ var myLittleDiary = (function () {
                 entry = JSON.parse(v);
             }
 
-            if (entry && entry.entryID) {
+            if (entry && entry.entryID && i === entry.entryID) {
                 entries.push(entry);
             }
         }
@@ -256,10 +244,32 @@ var myLittleDiary = (function () {
     }
 
     /**
+     * Get any entry.
+     * This function assumes the key in the local storage is the same as the entry, which could
+     *     probably lead to troubles. On the other hand, checking entry ID from within the value of
+     *     the key is probably way slower (asumption not verified).
+     * @param  {Integer} key Any valid key defining an object in the local storage.
+     * @return {Object}      Item and its properties:values.
+     */
+    function getEntry(key) {
+        var item = JSON.parse(localStorage.getItem(key));
+
+        if (!item) {
+            throw('No item found!');
+        }
+
+        return item;
+    }
+
+    /**
      * Display entries stored in the local storage.
      */
     function displayLocalEntries() {
-        addEntryToDOM(getEntriesFromDB());
+        var entries = getEntries();
+
+        if(0 !== entries.length) {
+            addEntryToDOM(getEntries());
+        }
     }
 
     /**
@@ -281,7 +291,7 @@ var myLittleDiary = (function () {
         }
 
         addEntryToDOM([entry]);
-        addEntryToDB(entry);
+        updateEntryInDB(entry);
         addMarker(entry);
         notifyUser('Your entry was posted successfully!');
 
@@ -306,7 +316,7 @@ var myLittleDiary = (function () {
                 objectsId.push('#' + cfg.entryIDSuf + entry.entryID);
             });
         } catch (e) {
-            throw('Data provided is not an array with at least one entry: ' + e);
+            throw(e);
         }
 
         // Add all objects to DOM, and let event listener know we added specific entries.
@@ -323,16 +333,21 @@ var myLittleDiary = (function () {
      *
      * @param {Integer}     Optional entry ID
      */
-    function addEntryToDB(data) {
-        var entryID = cfg.counter + 1;
+    function updateEntryInDB(data) {
+        var type    = 'add',
+            entryID = cfg.counter + 1;
 
         if (1 < arguments.length) {
+            type    = 'update';
             entryID = arguments[1];
         }
 
         try {
             localStorage.setItem(entryID, JSON.stringify(data));
-            localStorage.setItem('counter', ++cfg.counter);
+
+            if ('add' === type) {
+                localStorage.setItem('counter', ++cfg.counter);
+            }
         } catch (e) {
             notifyUser('Sorry, there was a problem while submitting your entry, ' +
                        'please check console log.',
@@ -349,7 +364,7 @@ var myLittleDiary = (function () {
             $entryDOM = $('#' + cfg.entryIDSuf + entryID),
             useNewLoc = $(cfg.select.ids.formLocation + '-' + entryID).prop('checked');
 
-        entry.entryID     = entryID;
+        entry.entryID     = parseInt(entryID, 10);
         entry.title       = $(cfg.select.ids.formTitle + '-' + entryID).val();
         entry.description = $(cfg.select.ids.formDesc + '-' + entryID).val();
         entry.location    = getEntry(entryID).location;
@@ -368,7 +383,7 @@ var myLittleDiary = (function () {
             updateLocation(entryID);
         }
 
-        addEntryToDB(entry, entryID);
+        updateEntryInDB(entry, entryID);
         updateMarker(entry);
         panToMarker(entry);
         $entryDOM.replaceWith($output);
@@ -412,6 +427,8 @@ var myLittleDiary = (function () {
      * @param {Integer} entryID ID of the entry to remove
      */
     function removeEntryFromDB(entryID) {
+
+
         try {
             localStorage.removeItem(entryID);
         } catch (exception) {
@@ -419,21 +436,6 @@ var myLittleDiary = (function () {
                        'error');
             throw(exception.message);
         }
-    }
-
-    /**
-     * Get any entry.
-     * @param  {Integer} key Any valid key defining an object in the local storage.
-     * @return {Object}      Item and its properties:values.
-     */
-    function getEntry(key) {
-        var item = JSON.parse(localStorage.getItem(key));
-
-        if (!item) {
-            throw('No item found!');
-        }
-
-        return item;
     }
 
 // *************************************************************************************************
@@ -507,7 +509,7 @@ var myLittleDiary = (function () {
             })
             .done(function (answer) {
                 entry.location = answer.location;
-                addEntryToDB(entry, entryID);
+                updateEntryInDB(entry, entryID);
 
                 updateMarker(entry);
 
@@ -560,7 +562,7 @@ var myLittleDiary = (function () {
             throw('"map" is not defined.');
         }
 
-        $.each(getEntriesFromDB(), function (i, entry) {
+        $.each(getEntries(), function (i, entry) {
             if (entry.location) {
                 addMarker(entry);
             }
@@ -676,7 +678,7 @@ var myLittleDiary = (function () {
      */
     function handleActions(target) {
         var $collapsable = $(target).closest(cfg.select.classes.canCollapse),
-            $entryID = $collapsable.attr('id').replace(cfg.entryIDSuf, ''),
+            $entryID = parseInt($collapsable.attr('id').replace(cfg.entryIDSuf, '')),
             action   = $(target).data('action');
 
         switch (action) {
@@ -715,6 +717,18 @@ var myLittleDiary = (function () {
 // *************************************************************************************************
 // ui
 // *************************************************************************************************
+
+    /**
+     * Populate a template with some data
+     * @param  {String} tpl  ID selector for the template.
+     * @param  {JSON}   data Data to be passed to the template.
+     * @return {jQuery}      Rendered templates as a jQuery object.
+     */
+    function templatize(tpl, data) {
+        var output = jsviews.render[tpl](data);
+
+        return output;
+    }
 
     /**
      * Give visual hints that some content is actionable through JS.
@@ -860,7 +874,7 @@ var myLittleDiary = (function () {
      */
     function listEntries() {
         console.log('entries in localStorage: ', localStorage);
-        console.log('entries in getEntriesFromDB(): ', getEntriesFromDB());
+        console.log('entries in getEntries(): ', getEntries());
     }
 
     /**
@@ -868,7 +882,7 @@ var myLittleDiary = (function () {
      */
     function clearLocalStorage() {
         $(cfg.select.classes.entry).remove();
-        $.each(getEntriesFromDB(), function (i, entry) {
+        $.each(getEntries(), function (i, entry) {
             removeMarker(entry);
         });
         cfg.counter = 0;
@@ -923,7 +937,7 @@ var myLittleDiary = (function () {
         ];
 
         $.each(dummyEntries, function (i, entry) {
-            addEntryToDB(entry);
+            updateEntryInDB(entry);
             addMarker(entry);
         });
 
