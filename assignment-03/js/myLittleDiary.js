@@ -343,7 +343,6 @@ var myLittleDiary = (function () {
 
         try {
             localStorage.setItem(entryID, JSON.stringify(data));
-
             if ('add' === type) {
                 localStorage.setItem('counter', ++cfg.counter);
             }
@@ -510,6 +509,7 @@ var myLittleDiary = (function () {
                 storeEntry(entry, entryID);
 
                 updateMarker(entry);
+                panToMarker(entry);
 
                 giveFeedback('The location for “' + entry.title + '” has been updated.', 'info');
             })
