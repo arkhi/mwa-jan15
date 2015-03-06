@@ -6,7 +6,7 @@
       "projectTypeName": "com.intel.xdk.projecttype.jsapp",
       "src": "",
       "projectGuid": "b24c1298-6001-4fc9-baa5-3e02bc22d7fb",
-      "lastModifiedDate": 1425492041000,
+      "lastModifiedDate": 1425645210188,
       "creationDate": 1425373731030
     },
     "sourceDirectory": "",
@@ -32,13 +32,6 @@
         "selectedState": "Included",
         "data": {},
         "paramvals": {}
-      },
-      {
-        "id": "org.apache.cordova.vibration",
-        "version": "0.3.12",
-        "selectedState": "Included",
-        "data": {},
-        "paramvals": {}
       }
     ],
     "serviceMethods": [],
@@ -51,7 +44,8 @@
           "android-minSdkVersion": "10",
           "android-targetSdkVersion": "19",
           "android-installLocation": "auto",
-          "Fullscreen": true
+          "Fullscreen": false,
+          "android-signed": true
         },
         "isActive_": true,
         "appName_": "my little diary",
@@ -79,7 +73,7 @@
           "android-minSdkVersion": "14",
           "android-targetSdkVersion": "19",
           "android-installLocation": "auto",
-          "Fullscreen": true
+          "Fullscreen": false
         },
         "isActive_": true,
         "appName_": "my little diary",
@@ -125,7 +119,8 @@
         "cordovaCLIVersion_": "4.1.2",
         "iosProvs_": [],
         "appDescription_": "",
-        "appAuthor_": "Fabien Basmaison"
+        "appAuthor_": "Fabien Basmaison",
+        "appVersionCode_": ""
       },
       "Windows8": {
         "platform_": "windows8",

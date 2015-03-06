@@ -10,9 +10,9 @@
 <access origin="*"/>
 <intelxdk:plugin intelxdk:name="Geolocation" intelxdk:value="org.apache.cordova.geolocation" intelxdk:version="0.3.11"/>
 <intelxdk:plugin intelxdk:name="Dialogs (notification)" intelxdk:value="org.apache.cordova.dialogs" intelxdk:version="0.2.11"/>
-<intelxdk:plugin intelxdk:name="Vibration (notification)" intelxdk:value="org.apache.cordova.vibration" intelxdk:version="0.3.12"/>
 <preference name="android-minSdkVersion" value="10"/>
 <preference name="android-targetSdkVersion" value="19"/>
 <preference name="android-installLocation" value="auto"/>
-<preference name="Fullscreen" value="true"/>
+<preference name="Fullscreen" value="false"/>
+<preference name="android-signed" value="true"/>
 <!--creationInfo:{"src":"","projectTypeName":"com.intel.xdk.projecttype.jsapp"}--></widget>
