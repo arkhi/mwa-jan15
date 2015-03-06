@@ -370,6 +370,22 @@ var myLittleDiary = (function () {
     }
 
     /**
+     * Close edit form and replace it with the non editable template.
+     * @param  {Integer} entryID ID of the entry to edit
+     */
+    function cancelEditForm(entryID) {
+        var entry  = getEntry(entryID),
+            $entryDOM = $('#' + cfg.entryIDSuf + entryID),
+            $output = $(templatize(
+                cfg.templates.entry.id,
+                entry
+            )).html();
+
+        $entryDOM.html($output);
+        setHeight($entryDOM);
+    }
+
+    /**
      * Edit the content of an entry.
      * @param {Integer} entryID ID of the entry to edit
      */
@@ -386,12 +402,11 @@ var myLittleDiary = (function () {
         if (!entry.title || !entry.description) {
             return;
         }
-        
+
         var $output = $(templatize(
                 cfg.templates.entry.id,
                 entry
-            )
-        ).html();
+            )).html();
 
         if (true === useNewLoc) {
             updateLocation(entryID);
@@ -697,23 +712,28 @@ var myLittleDiary = (function () {
      */
     function handleActions(target) {
         var $collapsable = $(target).closest(cfg.select.classes.canCollapse),
-            $entryID = parseInt($collapsable.attr('id').replace(cfg.entryIDSuf, '')),
+            entryID = parseInt($collapsable.attr('id').replace(cfg.entryIDSuf, '')),
             action   = $(target).data('action');
 
         switch (action) {
             case 'delete':
-                removeEntry($entryID);
+                if(confirm('Delete entry?')) {
+                    removeEntry(entryID);
+                }
                 break;
             case 'edit':
-                showEditForm($entryID);
+                showEditForm(entryID);
                 $collapsable.find(cfg.select.classes.collapseTrigger).removeClass(cfg.classes.collapseTrigger);
                 break;
             case 'submit':
-                $collapsable = editEntry($entryID);
+                $collapsable = editEntry(entryID);
                 showClickable($collapsable)
                     .addClass(cfg.classes.state)
                     .find(cfg.select.classes.collapseTrigger)
                         .addClass(cfg.classes.collapseTrigger);
+                break;
+            case 'cancel':
+                cancelEditForm(entryID);
                 break;
         }
     }
