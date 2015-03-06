@@ -61,24 +61,6 @@ h1 {
   content: "Searching location";
 }
 
-.actions .action {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border: 1px dotted #5d006f;
-  font-weight: bold;
-  text-decoration: none;
-  text-transform: uppercase;
-  color: #5d006f;
-  background: #fff;
-  cursor: pointer;
-}
-
-.actions .action:focus,
-.actions .action:hover {
-  color: #fff;
-  background-color: #5d006f;
-}
-
 /* collapsibles */
 
 .can-collapse {
@@ -140,6 +122,12 @@ label {
   cursor: pointer;
 }
 
+input,
+textarea {
+  border: 1px dotted #5d006f;
+  padding: .5rem;
+}
+
 .form-row {
   margin: .5rem;
 }
@@ -163,6 +151,24 @@ form .value {
   vertical-align: inherit;
 }
 
+.actions .action {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px dotted #5d006f;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #5d006f;
+  background: #fff;
+  cursor: pointer;
+}
+
+.actions .action:focus,
+.actions .action:hover {
+  color: #fff;
+  background-color: #5d006f;
+}
+
 /* map */
 
 #map.has-content {
@@ -174,7 +180,7 @@ form .value {
   display: none;
 }
 
-/* debug */
+/* feedbacks */
 
 #feedbacks {
   position: fixed;
@@ -210,12 +216,14 @@ form .value {
 
 .close-all {
   position: absolute;
-  top: 0;
+  top: .2rem;
   right: 100%;
-  padding: 0.5rem 0.75rem;
-  margin-right: 2px;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: .4rem;
   font-size: 2rem;
   font-weight: bold;
+  text-align: center;
   color: #999;
   background-color: #fff;
 }

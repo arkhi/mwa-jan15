@@ -55,7 +55,7 @@
     <script id="tpl-entry" type="text/x-jsrender">
       <article id="entry-{{:entryID}}" class="entry can-collapse">
         <h2 class="entry-header collapse-trigger">{{:title}}</h2>
-        <div class="collapse-target">
+        <div class="entry-content collapse-target">
           {{:description}}
 
           <hr>
@@ -70,32 +70,30 @@
 
     <script id="tpl-edit-entry" type="text/x-jsrender">
       <form id="edit-entry-{{:entryID}}">
-        <div class="entry-header collapse-trigger">
-          <label class="prop" for="title">Title</label>
+        <div class="form-row">
+          <label class="prop" for="title-{{:entryID}}">Title</label>
           <input id="title-{{:entryID}}" class="value" name="title[{{:entryID}}]" type="text" required value="{{:title}}" />
         </div>
 
-        <div class="collapse-target">
-          <div class="form-row">
-            <label class="prop" for="description">Description</label>
-            <textarea id="description-{{:entryID}}" class="value" name="description[{{:entryID}}]"
-                      cols="30" rows="10" required>{{:description}}</textarea>
+        <div class="form-row">
+          <label class="prop" for="description-{{:entryID}}">Description</label>
+          <textarea id="description-{{:entryID}}" class="value" name="description[{{:entryID}}]"
+                    cols="30" rows="10" required>{{:description}}</textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="prop">
+            <input id="location-{{:entryID}}" name="location[{{:entryID}}]" type="checkbox" value="ok">
           </div>
-          
-          <div class="form-row">
-            <div class="prop">
-              <input id="location-{{:entryID}}" name="location[{{:entryID}}]" type="checkbox" value="ok">
-            </div>
-            <label class="value" for="location-{{:entryID}}">Update to my present location.</label>
-          </div>
+          <label class="value" for="location-{{:entryID}}">Update to my present location.</label>
+        </div>
 
-          <hr>
+        <hr>
 
-          <div class="actions">
-            <button class="action" data-action="submit" href="?/delete/{{url:entryID}}" title="delete “{{attr:title}}”">submit</button>
-            <button class="action" data-action="cancel" type="cancel">cancel</button>
-            <button class="action" type="reset">reset</button>
-          </div>
+        <div class="actions">
+          <button class="action" data-action="submit" href="?/delete/{{url:entryID}}" title="delete “{{attr:title}}”">submit</button>
+          <button class="action" data-action="cancel" type="cancel">cancel</button>
+          <button class="action" type="reset">reset</button>
         </div>
       </form>
     </script>

@@ -23,6 +23,7 @@ var myLittleDiary = (function () {
             state:            'open',
             entry:            'entry',
             entriesContainer: 'entries',
+            entryContent:     'entry-content',
             feedbacks:        'feedbacks',
             feedback:         'feedback-entry',
             mainToggler:      'toggle-all',
@@ -53,6 +54,7 @@ var myLittleDiary = (function () {
         },
         markers: {},
         boundaries: [],
+        entryEdited: [],
 
         dependencies: [
             'jsviews',
@@ -186,7 +188,7 @@ var myLittleDiary = (function () {
          * Check if some entries were added dynamicaly
          * @param {object} data jQuery objects to operate on.
          */
-        $(cfg.select.classes.entriesContainer).on('entryAdded', function (event, data) {
+        $(cfg.select.classes.entriesContainer).on('entryUpdated', function (event, data) {
             showClickable(data.objects);
             setHeight(data.objects);
         });
@@ -322,7 +324,7 @@ var myLittleDiary = (function () {
         // Add all objects to DOM, and let event listener know we added specific entries.
         $(cfg.select.classes.entriesContainer)
             .prepend(output.reverse())
-            .trigger('entryAdded', [{
+            .trigger('entryUpdated', [{
                 objects: $(objectsId.join(', '))
             }]);
     }
@@ -364,8 +366,9 @@ var myLittleDiary = (function () {
                 cfg.templates.editEntry.id,
                 getEntry(entryID)
             );
+        cfg.entryEdited[entryID] = $entryDOM;
 
-        $entryDOM.html(form);
+        $entryDOM.find(cfg.select.classes.entryContent).html(form);
         setHeight($entryDOM);
     }
 
@@ -375,14 +378,17 @@ var myLittleDiary = (function () {
      */
     function cancelEditForm(entryID) {
         var entry  = getEntry(entryID),
-            $entryDOM = $('#' + cfg.entryIDSuf + entryID),
+            $entryDOM = cfg.entryEdited[entryID] || $('#' + cfg.entryIDSuf + entryID),
             $output = $(templatize(
                 cfg.templates.entry.id,
                 entry
             )).html();
 
-        $entryDOM.html($output);
-        setHeight($entryDOM);
+        $entryDOM
+            .html($output)
+            .trigger('entryUpdated', [{
+                objects: $('#' + cfg.entryIDSuf + entryID)
+            }]);
     }
 
     /**
@@ -391,7 +397,7 @@ var myLittleDiary = (function () {
      */
     function editEntry(entryID) {
         var entry     = cfg.defaultEntry(),
-            $entryDOM = $('#' + cfg.entryIDSuf + entryID),
+            $entryDOM = cfg.entryEdited[entryID] || $('#' + cfg.entryIDSuf + entryID),
             useNewLoc = $(cfg.select.ids.formLocation + '-' + entryID).prop('checked');
 
         entry.entryID     = parseInt(entryID, 10);
@@ -413,8 +419,11 @@ var myLittleDiary = (function () {
         }
 
         storeEntry(entry, entryID);
-        $entryDOM.html($output);
-        setHeight($entryDOM);
+        $entryDOM
+            .html($output)
+            .trigger('entryUpdated', [{
+                objects: $('#' + cfg.entryIDSuf + entryID)
+            }]);
 
         updateMarker(entry);
         panToMarker(entry);
@@ -534,7 +543,8 @@ var myLittleDiary = (function () {
         return getLocation()
             .progress(function (answer) {
                 $entryDOM.addClass(cfg.classes.pendingLocation);
-                giveFeedback(answer, 'info');
+                // giveFeedback(answer, 'info');
+                return answer;
             })
             .done(function (answer) {
                 var entry = getEntry(entryID);
@@ -723,14 +733,9 @@ var myLittleDiary = (function () {
                 break;
             case 'edit':
                 showEditForm(entryID);
-                $collapsable.find(cfg.select.classes.collapseTrigger).removeClass(cfg.classes.collapseTrigger);
                 break;
             case 'submit':
-                $collapsable = editEntry(entryID);
-                showClickable($collapsable)
-                    .addClass(cfg.classes.state)
-                    .find(cfg.select.classes.collapseTrigger)
-                        .addClass(cfg.classes.collapseTrigger);
+                editEntry(entryID);
                 break;
             case 'cancel':
                 cancelEditForm(entryID);
@@ -884,7 +889,7 @@ var myLittleDiary = (function () {
                 });
         }
 
-        if (!Notification.permission || true === cfg.debug) {
+        if (!Notification || !Notification.permission || true === cfg.debug) {
             giveFeedback(body, type, title);
         }
     }
