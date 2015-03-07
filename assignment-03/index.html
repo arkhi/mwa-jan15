@@ -2,16 +2,14 @@
 <html xmlns='http://www.w3.org/1999/xhtml' lang='en'>
   <head>
     <meta charset='utf-8'/>
-    <title>Assignment 3</title>
+    <title>My little diary</title>
 
     <meta name="viewport" content="width=device-width">
 
-    <link rel="stylesheet" href="css/all.css">
-    <!-- <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" /> -->
-    <link rel="stylesheet" href="js/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="css/all.min.css">
   </head>
   <body>
-    <h1 class="toggle-all">My Diary Entries</h1>
+    <h1 class="toggle-all">My little diary</h1>
     <div id="map"></div>
 
     <section class="entries">
@@ -21,12 +19,14 @@
         <div class="collapse-target">
           <div class="form-row">
             <label class="prop" for="title">Title</label>
-            <input id="title" class="value" name="title" type="text" required>
+            <input id="title" class="value" name="title" type="text" required="required"
+                   title="Please give some title to your entry.">
           </div>
           
           <div class="form-row">
             <label class="prop" for="description">Description</label>
-            <textarea id="description" class="value" name="description" cols="30" rows="10" required></textarea>
+            <textarea id="description" class="value" name="description" cols="30" rows="10" required="required"
+                      title="Please write something for others to read. :)"></textarea>
           </div>
           
           <div class="form-row">
@@ -104,12 +104,8 @@
       </div>
     </script>
 
-    <!-- <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script> -->
-    <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> -->
-    <script src="js/jsrender.min.js"></script>
-    <script src="js/jquery-1.11.2.min.js"></script>
-    <script src="js/leaflet/leaflet.js"></script>
-    <script src="js/myLittleDiary.js"></script>
+    <script src="js/all.min.js"></script>
+    <script>"JSON" in window || document.write('<script src="js/json2.min.js"><\/script>');</script>
 
     <script>
       // myLittleDiary.cfg.debug = true;

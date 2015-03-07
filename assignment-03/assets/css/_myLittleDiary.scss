@@ -139,6 +139,12 @@ textarea {
   background-color: #f9baf5;
 }
 
+@media all and (min-width: 35em) {
+  .add-entry {
+    border-width: 1px;
+  }
+}
+
 form .prop {
   display: inline-block;
   width: 20%;

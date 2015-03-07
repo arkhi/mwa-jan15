@@ -578,6 +578,12 @@ var myLittleDiary = (function () {
         try {
             if(L.version) {
                 $(cfg.select.ids.map).addClass(cfg.classes.mapOK);
+                cfg.markerIcon = L.icon({
+                    iconUrl:   'img/leaflet/marker-icon.png',
+                    shadowUrl: 'img/leaflet/marker-shadow.png',
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1,-34]
+                });
             }
         } catch (e) {
             throw(e.message);
@@ -622,7 +628,7 @@ var myLittleDiary = (function () {
             var marker = cfg.markers[entry.entryID] = {},
                 latLng = [entry.location.latitude, entry.location.longitude];
 
-            marker.layer = L.marker(latLng).addTo(cfg.map);
+            marker.layer = L.marker(latLng, {icon: cfg.markerIcon}).addTo(cfg.map);
             marker.popup = L.popup().setContent('<b>' + entry.title + '</b>');
 
             marker.layer.bindPopup(marker.popup);
