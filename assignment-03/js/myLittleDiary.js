@@ -775,13 +775,14 @@ var myLittleDiary = (function () {
      */
     function setHeight($container) {
         var headerH  = $container.find(cfg.select.classes.collapseTrigger).outerHeight(true),
-            contentH = $container.find(cfg.select.classes.collapseToggled).outerHeight(true);
+            contentH = $container.find(cfg.select.classes.collapseToggled).outerHeight(true),
+            height   = headerH;
 
         if ($container.hasClass(cfg.classes.state)) {
-            $container.height(headerH + contentH + 'px');
-        } else {
-            $container.height(headerH + 'px');
+            height += contentH;
         }
+
+        $container.height(height + 'px');
 
         return $container;
     }
