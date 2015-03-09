@@ -6,7 +6,7 @@
       "projectTypeName": "com.intel.xdk.projecttype.jsapp",
       "src": "",
       "projectGuid": "b24c1298-6001-4fc9-baa5-3e02bc22d7fb",
-      "lastModifiedDate": 1425645210188,
+      "lastModifiedDate": 1425823883415,
       "creationDate": 1425373731030
     },
     "sourceDirectory": "",
@@ -73,7 +73,8 @@
           "android-minSdkVersion": "14",
           "android-targetSdkVersion": "19",
           "android-installLocation": "auto",
-          "Fullscreen": false
+          "Fullscreen": false,
+          "android-signed": true
         },
         "isActive_": true,
         "appName_": "my little diary",
@@ -92,7 +93,7 @@
         "crosswalkVersion_": "10",
         "cordovaCLIVersion_": "4.1.2",
         "appDescription_": "",
-        "appAuthor_": "org.arkhi.diary"
+        "appAuthor_": "Fabien Basmaison"
       },
       "iOS": {
         "platform_": "ios",
@@ -103,7 +104,7 @@
           "ios-configuration": "adhoc",
           "Fullscreen": true
         },
-        "isActive_": true,
+        "isActive_": false,
         "appName_": "my ittle diary",
         "appID_": "org.arkhi.diary",
         "appAccess_": [
